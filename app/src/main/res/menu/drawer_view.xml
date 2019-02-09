@@ -29,9 +29,9 @@
             android:title="Report an Issue" />
 
         <item
-            android:id="@+id/qrCreation"
-            android:title="Create a QR Code"
-            android:visible="false"
+            android:id="@+id/qrCode"
+            android:title="View QR Code"
+            android:visible="true"
             />
     </group>
 </menu>

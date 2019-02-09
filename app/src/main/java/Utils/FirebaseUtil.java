@@ -571,7 +571,7 @@ public class FirebaseUtil {
      * @param link  Link object to be updated
      * @param fui   FirebaseUtilInterface with method OnError and onSuccess implemented
      */
-    public void setQRCodeActivatedStatus(Link link, boolean isArchived, FirebaseUtilInterface fui){
+    public void setQRCodeArchivedStatus(Link link, boolean isArchived, FirebaseUtilInterface fui){
         //Create a map with all the keys that are going to be updated
         Map<String, Object> data = new HashMap<>();
         data.put("Archived", isArchived);

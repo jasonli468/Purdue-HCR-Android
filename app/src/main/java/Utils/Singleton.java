@@ -386,8 +386,8 @@ public class Singleton {
      *
      * @Note    If it is easier to just give the link id, then this method can be changed to handle that instead.
      */
-    public void setQRCodeActivatedStatus(Link link, boolean isArchived, SingletonInterface si){
-        fbutil.setQRCodeActivatedStatus(link, isArchived, new FirebaseUtilInterface() {
+    public void setQRCodeArchivedStatus(Link link, boolean isArchived, SingletonInterface si){
+        fbutil.setQRCodeArchivedStatus(link, isArchived, new FirebaseUtilInterface() {
             @Override
             public void onSuccess() {
                 si.onSuccess();

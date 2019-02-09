@@ -82,4 +82,9 @@ public class Link {
     public String getAddress(){
         return "hcrpoint://addpoints/"+this.linkId;
     }
+
+    public String getAndroidDeepLinkAddress(){
+        return "intent://addpoints/"+this.linkId+"#Intent;scheme=hcrpoint;package=com.hcrpurdue.jason.hcrhousepoints;end";
+    }
+
 }
