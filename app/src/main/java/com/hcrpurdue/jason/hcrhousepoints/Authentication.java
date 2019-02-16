@@ -13,14 +13,13 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
-<<<<<<< Updated upstream
-=======
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
->>>>>>> Stashed changes
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -81,8 +80,7 @@ public class Authentication extends AppCompatActivity {
         }
     }
 
-<<<<<<< Updated upstream
-=======
+
     //TODO: FORGOT PASS
 
     public void forgotPassword(View view) {
@@ -146,7 +144,6 @@ public class Authentication extends AppCompatActivity {
 
     }
 
->>>>>>> Stashed changes
     public void signIn(View view) {
         EditText email = findViewById(R.id.emailInput);
         EditText password = findViewById(R.id.passwordInput);
