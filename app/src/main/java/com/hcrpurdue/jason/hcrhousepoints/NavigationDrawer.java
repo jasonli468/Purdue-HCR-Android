@@ -6,8 +6,11 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
+
 import com.google.android.material.navigation.NavigationView;
+
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -18,6 +21,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -105,7 +109,7 @@ public class NavigationDrawer extends AppCompatActivity {
         actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         drawerLayout = findViewById(R.id.drawer_layout);
 
-        if(singleton.showDialog()){
+        if (singleton.showDialog()) {
             new AlertDialog.Builder(this)
                     .setTitle("Development Committee")
                     .setMessage("Are you interested in helping development for the Purdue HCR app? If so, click \"I'm In\" below to join the Discord where we'll be coordinating everything!")
@@ -153,6 +157,9 @@ public class NavigationDrawer extends AppCompatActivity {
                             Intent reportIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://sites.google.com/view/hcr-points/home"));
                             reportIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(reportIntent);
+                            break;
+                        case R.id.point_history:
+                            fragmentClass = UpdatePoints.class;
                             break;
                         default:
                             fragmentClass = SubmitPoints.class;

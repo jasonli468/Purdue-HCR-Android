@@ -24,6 +24,7 @@ public class Singleton {
     private CacheUtil cacheUtil = new CacheUtil();
     private List<PointType> pointTypeList = null;
     private ArrayList<PointLog> unconfirmedPointList = null;
+    private ArrayList<PointLog> confirmedPointList = null;
     private String userID = null;
     private String floorName = null;
     private String houseName = null;
@@ -61,6 +62,16 @@ public class Singleton {
         return this.userID;
     }
 
+
+    public PointType getPointTypeWithID(int pointID) {
+
+        for (int i = 0; i < pointTypeList.size(); i++) {
+            if(pointTypeList.get(i).getPointID() == pointID) {
+                return pointTypeList.get(i);
+            }
+        }
+        return null;
+    }
 
     public void getPointTypes(SingletonInterface si) {
         if (pointTypeList == null)
@@ -138,6 +149,24 @@ public class Singleton {
         });
     }
 
+
+    //TODO: Configure to confirmed points list
+    public void getConfirmedPoints(SingletonInterface si) {
+        getPointTypes((new SingletonInterface() {
+            @Override
+            public void onPointTypeComplete(List<PointType> data) {
+                fbutil.getUnconfirmedPoints(houseName, floorName, pointTypeList, new FirebaseUtilInterface() {
+                    @Override
+                    public void onGetConfirmedPointsSuccess(ArrayList<PointLog> logs) {
+                        confirmedPointList = logs;
+                        si.onUnconfirmedPointsSuccess(logs);
+                    }
+                });
+            }
+        }));
+
+    }
+
     public List<PointType> getPointTypeList() {
         return pointTypeList;
     }
@@ -203,7 +232,7 @@ public class Singleton {
     }
 
     public void submitPoints(String description, PointType type, SingletonInterface si) {
-        PointLog log = new PointLog(description, name, type, floorName);
+        PointLog log = new PointLog(description, name, type, floorName, fbutil.getUserReference(userID));
         boolean preApproved = permissionLevel > 0;
         fbutil.submitPointLog(log, null, houseName, userID, preApproved, sysPrefs, new FirebaseUtilInterface() {
             @Override
@@ -224,7 +253,7 @@ public class Singleton {
                                           type = pointType;
                                       }
                                   }
-                                  PointLog log = new PointLog(link.getDescription(), name, type, floorName);
+                                  PointLog log = new PointLog(link.getDescription(), name, type, floorName, fbutil.getUserReference(userID));
                                   fbutil.submitPointLog(log, (link.isSingleUse()) ? link.getLinkId() : null, houseName, userID, link.isSingleUse(), sysPrefs, new FirebaseUtilInterface() {
 
                                     //TODO: Step 3

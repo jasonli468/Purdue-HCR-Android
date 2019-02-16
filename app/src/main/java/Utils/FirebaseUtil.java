@@ -52,22 +52,17 @@ public class FirebaseUtil {
      * @param fui         FirebaseUtilInterface: Implement the CompleteWithErrors(Exception e). Exception will be null if no Exception is recieved
      */
     public void submitPointLog(PointLog log, String documentID, String house, String userID, boolean preapproved, SystemPreferences sysPrefs, final FirebaseUtilInterface fui) {
-        log.setResidentRef(db.collection("Users").document(userID));
-        int multiplier = (preapproved) ? 1 : -1;
 
-
+        if(preapproved) {
+            log.updateApprovalStatus(preapproved, context);
+        }
 
         //TODO: Step 2
 
         if(sysPrefs.isHouseEnabled() && log.getPointType() != null && log.getPointType().isEnabled()) {
             //Create the data to be put into the object in the database
-            Map<String, Object> data = new HashMap<>();
-            data.put("Description", log.getPointDescription());
-            data.put("PointTypeID", (log.getType().getPointID() * multiplier));
-            data.put("Resident", log.getResident());
-            data.put("ResidentRef", log.getResidentRef());
-            data.put("FloorID", log.getFloorID());
-            data.put("ResidentReportTime", Timestamp.now());
+            Map<String, Object> data = log.convertToDict();
+
 
             // If the pointLog does not care about its id, add value to the database with random ID
             if (TextUtils.isEmpty(documentID)) {
@@ -134,6 +129,11 @@ public class FirebaseUtil {
         {
             Toast.makeText(context, sysPrefs.getHouseIsEnabledMsg(), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public DocumentReference getUserReference(String userID) {
+
+        return db.collection("Users").document(userID);
     }
 
     /**
@@ -306,41 +306,109 @@ public class FirebaseUtil {
                             if (!floorId.equals("6N") && !floorId.equals("6S")) {
                                 if (floorId.equals(logFloorId)) {
                                     String logId = document.getId();
-                                    String description = (String) document.get("Description");
-                                    int pointTypeId = Objects.requireNonNull(document.getLong("PointTypeID")).intValue();
-                                    String resident = (String) document.get("Resident");
-                                    Object ref = document.get("ResidentRef");
-                                    PointType pointType = null;
-                                    for (PointType type : pointTypes) {
-                                        if (type.getPointID() == Math.abs(pointTypeId)) {
-                                            pointType = type;
-                                        }
-                                    }
-                                    PointLog log = new PointLog(description, resident, pointType, floorId);
-                                    if (ref != null) {
-                                        log.setResidentRef((DocumentReference) ref);
-                                    }
-                                    log.setLogID(logId);
+//                                    String description = (String) document.get("Description");
+//                                    int pointTypeId = Objects.requireNonNull(document.getLong("PointTypeID")).intValue();
+//                                    String resident = (String) document.get("Resident");
+//                                    Object ref = document.get("ResidentRef");
+//                                    PointType pointType = null;
+//                                    for (PointType type : pointTypes) {
+//                                        if (type.getPointID() == Math.abs(pointTypeId)) {
+//                                            pointType = type;
+//                                        }
+//                                    }
+//                                    PointLog log = new PointLog(description, resident, pointType, floorId);
+//                                    if (ref != null) {
+//                                        log.setResidentRef((DocumentReference) ref);
+//                                    }
+//                                    log.setLogID(logId);
+
+                                    PointLog log = new PointLog(logId, document.getData(), context);
                                     logs.add(log);
                                 }
                             } else {
                                 if (floorId.equals(logFloorId) || "Shreve".equals(logFloorId)) {
                                     String logId = document.getId();
-                                    String description = (String) document.get("Description");
-                                    int pointTypeId = Objects.requireNonNull(document.getLong("PointTypeID")).intValue();
-                                    String resident = (String) document.get("Resident");
-                                    Object ref = document.get("ResidentRef");
-                                    PointType pointType = null;
-                                    for (PointType type : pointTypes) {
-                                        if (type.getPointID() == Math.abs(pointTypeId)) {
-                                            pointType = type;
-                                        }
-                                    }
-                                    PointLog log = new PointLog(description, resident, pointType, floorId);
-                                    if (ref != null) {
-                                        log.setResidentRef((DocumentReference) ref);
-                                    }
-                                    log.setLogID(logId);
+//                                    String description = (String) document.get("Description");
+//                                    int pointTypeId = Objects.requireNonNull(document.getLong("PointTypeID")).intValue();
+//                                    String resident = (String) document.get("Resident");
+//                                    Object ref = document.get("ResidentRef");
+//                                    PointType pointType = null;
+//                                    for (PointType type : pointTypes) {
+//                                        if (type.getPointID() == Math.abs(pointTypeId)) {
+//                                            pointType = type;
+//                                        }
+//                                    }
+//                                    PointLog log = new PointLog(description, resident, pointType, floorId);
+//                                    if (ref != null) {
+//                                        log.setResidentRef((DocumentReference) ref);
+//                                    }
+//                                    log.setLogID(logId);
+                                    PointLog log = new PointLog(logId, document.getData(), context);
+                                    logs.add(log);
+                                }
+                            }
+                        }
+                        if (logs.isEmpty())
+                            Toast.makeText(context, "No unapproved points", Toast.LENGTH_SHORT).show();
+                        fui.onGetUnconfirmedPointsSuccess(logs);
+                    } else {
+                        fui.onError(task.getException(), context);
+                    }
+                })
+                .addOnFailureListener(e -> fui.onError(e, context));
+    }
+
+    public void getConfirmedPoints(String house, String floorId, List<PointType> pointTypes, final FirebaseUtilInterface fui) {
+        CollectionReference housePointRef = db.collection("House").document(house).collection("Points");
+        housePointRef.whereGreaterThan("PointTypeID", 0).get()
+                .addOnCompleteListener((Task<QuerySnapshot> task) -> {
+                    if (task.isSuccessful()) {
+                        ArrayList<PointLog> logs = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String logFloorId = (String) document.get("FloorID");
+                            if (!floorId.equals("6N") && !floorId.equals("6S")) {
+                                if (floorId.equals(logFloorId)) {
+                                    String logId = document.getId();
+//                                    String description = (String) document.get("Description");
+//                                    int pointTypeId = Objects.requireNonNull(document.getLong("PointTypeID")).intValue();
+//                                    String resident = (String) document.get("Resident");
+//                                    Object ref = document.get("ResidentRef");
+//                                    PointType pointType = null;
+//                                    for (PointType type : pointTypes) {
+//                                        if (type.getPointID() == Math.abs(pointTypeId)) {
+//                                            pointType = type;
+//                                        }
+//                                    }
+//                                    PointLog log = new PointLog(description, resident, pointType, floorId);
+//                                    if (ref != null) {
+//                                        log.setResidentRef((DocumentReference) ref);
+//                                    }
+//                                    log.setLogID(logId);
+                                    PointLog log = new PointLog(logId, document.getData(), context);
+                                    logs.add(log);
+                                }
+                            } else {
+                                if (floorId.equals(logFloorId) || "Shreve".equals(logFloorId)) {
+                                    String logId = document.getId();
+//                                    String description = (String) document.get("Description");
+//                                    int pointTypeId = Objects.requireNonNull(document.getLong("PointTypeID")).intValue();
+//                                    String resident = (String) document.get("Resident");
+//                                    Object ref = document.get("ResidentRef");
+//                                    PointType pointType = null;
+
+
+//                                    for (PointType type : pointTypes) {
+//                                        if (type.getPointID() == Math.abs(pointTypeId)) {
+//                                            pointType = type;
+//                                        }
+//                                    }
+//                                    PointLog log = new PointLog(description, resident, pointType, floorId);
+//                                    if (ref != null) {
+//                                        log.setResidentRef((DocumentReference) ref);
+//                                    }
+//                                    log.setLogID(logId);
+
+                                    PointLog log = new PointLog(logId, document.getData(), context);
                                     logs.add(log);
                                 }
                             }

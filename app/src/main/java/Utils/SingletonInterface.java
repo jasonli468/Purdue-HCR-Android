@@ -1,6 +1,7 @@
 package Utils;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
@@ -32,6 +33,10 @@ public interface SingletonInterface {
     }
 
     default void onUnconfirmedPointsSuccess(ArrayList<PointLog> logs) {
+    }
+
+    default void onConfirmedPointsSuccess(ArrayList<PointLog> logs) {
+
     }
 
     default void onGetPointStatisticsSuccess(List<House> houses, int userPoints, List<Reward> rewards) {

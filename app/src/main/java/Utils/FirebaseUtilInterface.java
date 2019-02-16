@@ -42,6 +42,9 @@ public interface FirebaseUtilInterface {
     default void onGetUnconfirmedPointsSuccess(ArrayList<PointLog> logs) {
     }
 
+    default void onGetConfirmedPointsSuccess(ArrayList<PointLog> logs) {
+    }
+
     default void onGetLinkWithIdSuccess(Link link) {
     }
 

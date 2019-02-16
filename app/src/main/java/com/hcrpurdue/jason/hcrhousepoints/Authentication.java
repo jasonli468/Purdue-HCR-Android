@@ -15,6 +15,12 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+<<<<<<< Updated upstream
+=======
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+>>>>>>> Stashed changes
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -75,6 +81,72 @@ public class Authentication extends AppCompatActivity {
         }
     }
 
+<<<<<<< Updated upstream
+=======
+    //TODO: FORGOT PASS
+
+    public void forgotPassword(View view) {
+        /* Code for Forgot Password Dialog */
+
+        TextView fgtPassView = findViewById(R.id.forgot_password);
+
+        fgtPassView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openResetPasswordDialog();
+            }
+        });
+
+
+        /* Code for Forgot Password Dialog */
+
+    }
+
+    //TODO: END FORGOT PASS
+
+
+    /* Opens the reset password dialog box invoked when user clicks Forgot Password TextView */
+    public void openResetPasswordDialog() {
+
+        PasswordResetDialog resetDialog = new PasswordResetDialog();
+
+        resetDialog.show(getSupportFragmentManager(), "Password Reset");
+
+
+        /* If the email verification in PasswordResetDialog onCreateDialog() method checks out, it returns a boolean that allows the
+        * password reset process to continue in this function */
+
+        if (resetDialog.emailValid()) {
+            String email = resetDialog.getUserEmail();
+
+            auth.sendPasswordResetEmail(email)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful()) {
+                                Toast.makeText(Authentication.this, "Password Reset Email has been sent!", Toast.LENGTH_SHORT).show();
+                            }
+                            else {
+                                Toast.makeText(Authentication.this,
+                                        "Email failed to send. Please verify your email is correct and try again.",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(Authentication.this, "Please verify your email", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+        }
+
+    }
+
+>>>>>>> Stashed changes
     public void signIn(View view) {
         EditText email = findViewById(R.id.emailInput);
         EditText password = findViewById(R.id.passwordInput);
