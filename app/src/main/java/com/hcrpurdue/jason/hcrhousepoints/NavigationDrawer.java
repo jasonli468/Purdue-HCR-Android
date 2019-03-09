@@ -6,6 +6,8 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+
+import Utils.QRCodeUtil;
 import androidx.annotation.NonNull;
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.app.ActivityCompat;
@@ -151,6 +153,9 @@ public class NavigationDrawer extends AppCompatActivity {
                             break;
                         case R.id.qrCode:
                             fragmentClass = QrCodeDisplay.class;
+                            break;
+                        case R.id.generateQRCode:
+                            fragmentClass = QRCreation.class;
                             break;
                         case R.id.nav_report_issue:
                             Intent reportIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://sites.google.com/view/hcr-points/home"));

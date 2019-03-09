@@ -1,6 +1,8 @@
 package Models;
 
-public class Link {
+import java.io.Serializable;
+
+public class Link implements Serializable {
     private String linkId;
     private String description;
     private boolean singleUse;
@@ -21,6 +23,8 @@ public class Link {
         this.description = description;
         this.singleUse = singleUse;
         this.pointTypeId = pointTypeId;
+        this.isEnabled = false;
+        this.isArchived = false;
     }
 
     @Override

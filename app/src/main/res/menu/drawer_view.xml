@@ -33,5 +33,10 @@
             android:title="View QR Code"
             android:visible="true"
             />
+        <item
+            android:id="@+id/generateQRCode"
+            android:title="Generate QR Code"
+            android:visible="true"
+            />
     </group>
 </menu>

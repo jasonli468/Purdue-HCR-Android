@@ -75,11 +75,12 @@ public class QrCodeDisplay extends Fragment {
 
     /**
      * Attempts to retrieve a Link model from the Bundle. Call this when initializing the view.
+     * To put values in the correct place, when you build a fragmentTransatction, put a Bundle into the fragment with fragment.setArguments(Bundle);
      */
     private void retrieveBundleData(){
-        Bundle bundle = this.getActivity().getIntent().getExtras();
+        Bundle bundle = getArguments();
         if(bundle != null){
-            qrCodeModel = (Link) bundle.get("QRCODE");
+            qrCodeModel = (Link) bundle.getSerializable("QRCODE");
             if(qrCodeModel == null){
                 qrCodeModel = new Link("B8hlX08pQyJFk2mdqAYI", "Test Code", true, 1, true, true);
             }
