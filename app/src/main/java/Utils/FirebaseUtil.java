@@ -486,7 +486,7 @@ public class FirebaseUtil {
                     String id = document.getId();
                     String description = ((String) document.get("Description"));
                     boolean singleUse = ((boolean) document.get("SingleUse"));
-                    int pointTypeId = ((int) document.get("PointID"));
+                    int pointTypeId = ((Long)document.get("PointID")).intValue();
                     boolean isEnabled = ((boolean) document.get("Enabled"));
                     boolean isArchived = ((boolean) document.get("Archived"));
                     Link newCode = new Link(id, description, singleUse, pointTypeId, isEnabled,isArchived);

@@ -52,7 +52,7 @@ public interface FirebaseUtilInterface {
 
     }
 
-    default void onGetQRCodesForUserSuccess(List<Link> qrCodes){
+    default void onGetQRCodesForUserSuccess(ArrayList<Link> qrCodes){
 
     }
 

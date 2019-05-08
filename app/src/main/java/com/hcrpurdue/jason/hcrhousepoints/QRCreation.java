@@ -175,7 +175,7 @@ public class QRCreation extends Fragment {
                     //Create Fragment manager
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.replace(R.id.content_frame, fragment, Integer.toString(R.id.qrCode));
+                    fragmentTransaction.replace(R.id.content_frame, fragment, Integer.toString(R.id.nav_qr_code_display));
                     fragmentTransaction.addToBackStack(Integer.toString(R.id.generateQRCode));
                     fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                     fragmentTransaction.commit();

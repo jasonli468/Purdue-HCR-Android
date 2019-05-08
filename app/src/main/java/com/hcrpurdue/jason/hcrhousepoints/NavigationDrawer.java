@@ -151,8 +151,8 @@ public class NavigationDrawer extends AppCompatActivity {
                             else
                                 fragmentClass = QRScan.class;
                             break;
-                        case R.id.qrCode:
-                            fragmentClass = QrCodeDisplay.class;
+                        case R.id.nav_qr_code_list:
+                            fragmentClass = QRCodeListController.class;
                             break;
                         case R.id.generateQRCode:
                             fragmentClass = QRCreation.class;

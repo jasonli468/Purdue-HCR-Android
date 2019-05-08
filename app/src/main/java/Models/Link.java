@@ -1,6 +1,11 @@
 package Models;
 
+import android.content.Context;
+import android.graphics.Point;
+
 import java.io.Serializable;
+
+import Utils.Singleton;
 
 public class Link implements Serializable {
     private String linkId;
@@ -89,6 +94,10 @@ public class Link implements Serializable {
 
     public String getAndroidDeepLinkAddress(){
         return "intent://addpoints/"+this.linkId+"#Intent;scheme=hcrpoint;package=com.hcrpurdue.jason.hcrhousepoints;end";
+    }
+
+    public PointType getPointType(Context context){
+        return Singleton.getInstance(context).getPointTypeList().get(pointTypeId);
     }
 
 }

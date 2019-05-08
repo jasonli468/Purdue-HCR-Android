@@ -32,7 +32,7 @@ public class Singleton {
     private int totalPoints = 0;
     private List<House> houseList = null;
     private List<Reward> rewardList = null;
-    private List<Link> userCreatedQRCodes = null;
+    private ArrayList<Link> userCreatedQRCodes = null;
     private SystemPreferences sysPrefs = null;
 
     private Singleton() {
@@ -305,21 +305,21 @@ public class Singleton {
     /**
      * Get the list of QRCodes that were created by the User with userId.
      *
-     * @param userId    String that represents the Firebase ID of the User who is getting QR codes.
+     * @param shouldRefresh  Boolean that represents if the app should request updated information from the server
      * @param si       SingletonInterface that has the methods onError and onGetQRCodesForUserSuccess implemented.
      */
-    public void getUserCreatedQRCodes(String userId, boolean shouldRefresh, SingletonInterface si){
+    public void getUserCreatedQRCodes(boolean shouldRefresh, SingletonInterface si){
 
         if(this.userCreatedQRCodes == null || shouldRefresh) {
             //No data is currently cached or the cache needs to be refreshed
-            fbutil.getQRCodesForUser(userId, new FirebaseUtilInterface() {
+            fbutil.getQRCodesForUser(userID, new FirebaseUtilInterface() {
                 @Override
                 public void onError(Exception e, Context context) {
                     si.onError(e,context);
                 }
 
                 @Override
-                public void onGetQRCodesForUserSuccess(List<Link> qrCodes) {
+                public void onGetQRCodesForUserSuccess(ArrayList<Link> qrCodes) {
                     setUserCreatedQRCodes(qrCodes); // Save to local Cache
                     si.onGetQRCodesForUserSuccess(qrCodes);
                 }
@@ -330,7 +330,7 @@ public class Singleton {
         }
     }
 
-    private void setUserCreatedQRCodes(List<Link> codes){
+    private void setUserCreatedQRCodes(ArrayList<Link> codes){
         this.userCreatedQRCodes = codes;
     }
 
