@@ -7,9 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
@@ -68,14 +71,36 @@ public class QrCodeListAdapter extends BaseAdapter implements ListAdapter {
 
         TextView typeTextView = view.findViewById(R.id.type);
         typeTextView.setText(qrCode.getPointType(context).getPointDescription());
-        if(qrCode.isEnabled()){
-            ImageView statusImageView = view.findViewById(R.id.qr_code_status_image_view);
-            statusImageView.setColorFilter(ActivityCompat.getColor(context, android.R.color.holo_green_light));
-        }
-        else{
-            ImageView statusImageView = view.findViewById(R.id.qr_code_status_image_view);
-            statusImageView.setColorFilter(ActivityCompat.getColor(context, android.R.color.holo_red_dark));
-        }
+        Switch codeActiveSwitch = view.findViewById(R.id.qr_code_switch);
+        codeActiveSwitch.setChecked(qrCode.isEnabled());
+
+        codeActiveSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Singleton.getInstance(context).setQRCodeEnabledStatus(qrCodeList.get(position), codeActiveSwitch.isChecked(), new SingletonInterface() {
+                    @Override
+                    public void onSuccess() {
+                        if (codeActiveSwitch.isChecked()) {
+                            Toast.makeText(context, "Code has been activated", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(context, "Code has been deactivated", Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+
+                    @Override
+                    public void onError(Exception e, Context context) {
+                        codeActiveSwitch.setChecked(!codeActiveSwitch.isChecked());
+                        qrCodeList.get(position).setEnabled(!codeActiveSwitch.isChecked());
+                        Toast.makeText(context, "Code could not be updated.", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
+
+
+
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override
