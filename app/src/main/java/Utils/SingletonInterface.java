@@ -52,6 +52,8 @@ public interface SingletonInterface {
 
     default void onGetSystemPreferencesSuccess(SystemPreferences systemPreferences) {
 
+    }
+    default void onGetAllHousePointsSuccess(List<PointLog> houseLogs){
 
     }
 }

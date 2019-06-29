@@ -33,10 +33,13 @@
             android:title="Create a QR Code"
             android:visible="false"
             />
-
+        <item
+            android:id="@+id/nav_point_log_details"
+            android:visible="false"
+            />
         <item
             android:id="@+id/point_history"
-            android:title="See Point History"
+            android:title="House Point History"
             android:icon="@drawable/history_white_icon"
             />
     </group>

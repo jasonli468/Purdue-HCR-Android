@@ -1,6 +1,7 @@
 package Utils;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -138,7 +139,7 @@ public class Singleton {
         getPointTypes(new SingletonInterface() {
             @Override
             public void onPointTypeComplete(List<PointType> data) {
-                fbutil.getUnconfirmedPoints(houseName, floorName, pointTypeList, new FirebaseUtilInterface() {
+                fbutil.getUnconfirmedPoints(houseName, floorName, new FirebaseUtilInterface() {
                     @Override
                     public void onGetUnconfirmedPointsSuccess(ArrayList<PointLog> logs) {
                         unconfirmedPointList = logs;
@@ -147,24 +148,6 @@ public class Singleton {
                 });
             }
         });
-    }
-
-
-    //TODO: Configure to confirmed points list
-    public void getConfirmedPoints(SingletonInterface si) {
-        getPointTypes((new SingletonInterface() {
-            @Override
-            public void onPointTypeComplete(List<PointType> data) {
-                fbutil.getUnconfirmedPoints(houseName, floorName, pointTypeList, new FirebaseUtilInterface() {
-                    @Override
-                    public void onGetConfirmedPointsSuccess(ArrayList<PointLog> logs) {
-                        confirmedPointList = logs;
-                        si.onUnconfirmedPointsSuccess(logs);
-                    }
-                });
-            }
-        }));
-
     }
 
     public List<PointType> getPointTypeList() {
@@ -429,5 +412,34 @@ public class Singleton {
         });
     }
 
+    public void getAllHousePoints(SingletonInterface si) {
+        fbutil.getAllHousePoints(houseName, floorName, new FirebaseUtilInterface() {
 
+            @Override
+            public void onGetAllHousePointsSuccess(List<PointLog> houseLogs) {
+                si.onGetAllHousePointsSuccess(houseLogs);
+            }
+        });
+    }
+
+    /**
+     * Handles the updating the database for approving or denying points. It will update the point in the house and the TotalPoints for both user and house
+     *
+     * @param log                    PointLog:   The PointLog that is to be either approved or denied
+     * @paramad approved               boolean:    Was the log approved?
+     * @param sui                    FirebaseUtilInterface: Implement the OnError and onSuccess methods
+     */
+    public void handlePointLog(PointLog log, boolean approved, SingletonInterface sui){
+        fbutil.handlePointLog(log, approved, getHouse(), getName(), new FirebaseUtilInterface() {
+            @Override
+            public void onSuccess() {
+                sui.onSuccess();
+            }
+
+            @Override
+            public void onError(Exception e, Context context) {
+                sui.onError(e,context);
+            }
+        });
+    }
 }

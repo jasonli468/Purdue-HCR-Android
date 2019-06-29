@@ -21,6 +21,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.ListFragment;
 
 import android.util.Log;
 import android.view.Menu;
@@ -165,8 +166,22 @@ public class NavigationDrawer extends AppCompatActivity {
                             fragmentClass = SubmitPoints.class;
                             break;
                     }
+                    if(fragmentClass == UpdatePoints.class) {
+                        ListFragment listFragment = (ListFragment) fragmentManager.findFragmentByTag(Integer.toString(selectedItem));
+                        if (listFragment == null) {
+                            try {
+                                listFragment = (ListFragment) fragmentClass.newInstance();
+                            } catch (Exception e) {
+                                Toast.makeText(this, "Failed to load Fragment while changing views", Toast.LENGTH_LONG).show();
+                                Log.e("NavigationDrawer", "Failed to load fragment on menu select", e);
+                            }
+                        }
 
-                    if (fragmentClass != null && currentItem != selectedItem) {
+                        Objects.requireNonNull(listFragment);
+                        fragmentManager.beginTransaction().replace(R.id.content_frame, listFragment, Integer.toString(selectedItem)).addToBackStack(Integer.toString(currentItem)).commit();
+                        return true;
+                    }
+                    else if (fragmentClass != null && currentItem != selectedItem ) {
                         Fragment fragment = fragmentManager.findFragmentByTag(Integer.toString(selectedItem));
                         if (fragment == null) {
                             try {
@@ -181,7 +196,9 @@ public class NavigationDrawer extends AppCompatActivity {
                         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment, Integer.toString(selectedItem)).addToBackStack(Integer.toString(currentItem)).commit();
                         return true;
                     }
-                    return false;
+                    else {
+                        return false;
+                    }
                 });
     }
 

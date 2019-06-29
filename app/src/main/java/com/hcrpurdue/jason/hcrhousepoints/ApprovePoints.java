@@ -96,22 +96,6 @@ public class ApprovePoints extends Fragment {
         });
     }
 
-    private void getConfirmedPoints(SwipeRefreshLayout swipeRefresh) {
-        singleton.getConfirmedPoints(new SingletonInterface() {
-            @Override
-            public void onConfirmedPointsSuccess(ArrayList<PointLog> logs) {
-                ApprovePointListAdapter adapter = new ApprovePointListAdapter(logs, context, singleton.getHouse(), singleton.getName(), progressBar);
-                approveList.setAdapter(adapter);
-                progressBar.setVisibility(View.GONE);
-
-                if (swipeRefresh != null) {
-                    swipeRefresh.setRefreshing(false);
-                }
-
-            }
-        });
-    }
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 

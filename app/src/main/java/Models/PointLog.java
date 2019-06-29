@@ -5,14 +5,16 @@ import android.content.Context;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 
+import java.io.Serializable;
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import Utils.Singleton;
 
-public class PointLog {
+public class PointLog implements Serializable {
 
     //TODO: 1: /  2: (2 *)  3: Enter
 
@@ -87,7 +89,7 @@ public class PointLog {
             this.wasHandled = true;
         }
 
-        this.type = Singleton.getInstance(context).getPointTypeWithID(idValue);
+        this.type = Singleton.getInstance(context).getPointTypeWithID(Math.abs(idValue));
 
         if (floorID.equals("Shreve")) {
             resident = SHREVE_RESIDENT + resident;
@@ -139,7 +141,7 @@ public class PointLog {
         else {
             //Rejecting the point
 
-            if(wasRejected()) {
+            if(!wasRejected()) {
                 this.pointDescription = REJECTED_STRING + pointDescription;
                 this.approvedBy = Singleton.getInstance(context).getName();
                 this.approvedOn = new Date();
@@ -229,6 +231,26 @@ public class PointLog {
 
     public String getLogID() {
         return logID;
+    }
+
+    public Boolean wasHandled() { return  wasHandled; }
+
+    public ArrayList<String> getDetailedMessageList(){
+        ArrayList<String> messages = new ArrayList<>();
+        String mainMessage = resident+" reported a point for \n\n\""+
+                getPointType().getPointDescription()+"\".\n\n" +
+                "The description they provided was: \n\n\""+pointDescription+"\".";
+        messages.add(mainMessage);
+        if(wasHandled){
+            if (wasRejected()){
+                messages.add("Point was rejected by: "+approvedBy+".");
+            }
+            else{
+                messages.add("Point was approved by: "+approvedBy+".");
+            }
+        }
+        messages.add("------------------");
+        return messages;
     }
 
 

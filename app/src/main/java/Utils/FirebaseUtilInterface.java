@@ -60,7 +60,9 @@ public interface FirebaseUtilInterface {
     }
 
     default void onGetSystemPreferencesSuccess(SystemPreferences systemPreferences) {
+    }
 
+    default void onGetAllHousePointsSuccess(List<PointLog> houseLogs){
 
     }
 

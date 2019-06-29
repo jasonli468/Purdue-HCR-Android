@@ -2,6 +2,7 @@ package Utils;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Point;
 import android.service.autofill.UserData;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -13,6 +14,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
@@ -177,6 +179,60 @@ public class FirebaseUtil {
     }
 
     /**
+     * Update the status of the point log if it has been approved, rejected, or updated.
+     * This method handles both initial approve/reject and Updating
+     *
+     * @param log   - PointLog to be updated. (Do not set updateApprovalStatus on the log.)
+     * @param approved  - Boolean if the point is approved
+     * @param house     - String for the house that the point belongs to
+     * @param approvingOrDenyingUser    - Name of the User who is chaning the status
+     * @param updating              - Boolean for if this point is being updated or set for the first time
+     * @param fui   - FirebaseUtilInterface that implements on Success and On Error
+     */
+    public void updatePointLogStatus(PointLog log, boolean approved, String house, String approvingOrDenyingUser, boolean updating, FirebaseUtilInterface fui) {
+        DocumentReference housePointRef = db.collection("House").document(house).collection("Points").document(log.getLogID());
+        log.updateApprovalStatus(approved,context);
+        housePointRef.get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Map<String, Object> data = task.getResult().getData();
+                        if (data != null){
+                            PointLog oldLog = new PointLog(task.getResult().getId(),data,context);
+                            //If this is the first handling of this log, check to make sure it was not already approved
+                            if(!updating && oldLog.wasHandled()){
+                                fui.onError(new Exception("Point request has already been handled."),context);
+                            }
+                            else{
+                                //It has either not been approved yet, or is updating, so we are good
+                                // First, check if it is being updated and status are the same
+                                if(updating && (log.wasRejected() == oldLog.wasRejected())){
+                                    fui.onError(new Exception("Status has already been changed."),context);
+                                }
+                                else{
+                                    housePointRef.update(log.convertToDict()).addOnCompleteListener(task1 -> {
+                                        if(task1.isSuccessful()){
+                                            //TODO Update the House and User points based on approval and updating
+                                        }
+                                        else{
+                                            fui.onError(task1.getException(), context);
+                                        }
+                                    });
+                                }
+                            }
+                        }
+
+                        else {
+                            fui.onError(new IllegalStateException("Data is null"), context);
+                        }
+                    } else {
+                        fui.onError(task.getException(), context);
+                    }
+                })
+                .addOnFailureListener(e -> fui.onError(e, context)
+                );
+    }
+
+    /**
      * This encapsulates the update House points and user points methods to increase readability
      *
      * @param log   PointLog:   log that was approved and needs to see points added to user and house
@@ -295,7 +351,7 @@ public class FirebaseUtil {
                 );
     }
 
-    public void getUnconfirmedPoints(String house, String floorId, List<PointType> pointTypes, final FirebaseUtilInterface fui) {
+    public void getUnconfirmedPoints(String house, String floorId, final FirebaseUtilInterface fui) {
         CollectionReference housePointRef = db.collection("House").document(house).collection("Points");
         housePointRef.whereLessThan("PointTypeID", 0).get()
                 .addOnCompleteListener((Task<QuerySnapshot> task) -> {
@@ -680,6 +736,38 @@ public class FirebaseUtil {
         });
 
 
+    }
+
+    public void getAllHousePoints(String house, String floorId, final FirebaseUtilInterface fui) {
+        CollectionReference housePointRef = db.collection("House").document(house).collection("Points");
+        housePointRef.orderBy("ResidentReportTime", Query.Direction.DESCENDING).get()
+                .addOnCompleteListener((Task<QuerySnapshot> task) -> {
+                    if (task.isSuccessful()) {
+                        ArrayList<PointLog> logs = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String logFloorId = (String) document.get("FloorID");
+                            if (!floorId.equals("6N") && !floorId.equals("6S")) {
+                                if (floorId.equals(logFloorId)) {
+                                    String logId = document.getId();
+                                    PointLog log = new PointLog(logId, document.getData(), context);
+                                    logs.add(log);
+                                }
+                            } else {
+                                if (floorId.equals(logFloorId) || "Shreve".equals(logFloorId)) {
+                                    String logId = document.getId();
+                                    PointLog log = new PointLog(logId, document.getData(), context);
+                                    logs.add(log);
+                                }
+                            }
+                        }
+                        if (logs.isEmpty())
+                            Toast.makeText(context, "No unapproved points", Toast.LENGTH_SHORT).show();
+                        fui.onGetAllHousePointsSuccess(logs);
+                    } else {
+                        fui.onError(task.getException(), context);
+                    }
+                })
+                .addOnFailureListener(e -> fui.onError(e, context));
     }
 
 }
