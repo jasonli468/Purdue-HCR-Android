@@ -10,6 +10,7 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import Utils.Singleton;
@@ -32,6 +33,7 @@ public class PointLog implements Serializable {
     private DocumentReference residentRef;
     private Date residentReportTime;
     private String logID;
+    private List<PointLogMessage> messages;
 
 
     private boolean wasHandled;
@@ -55,6 +57,7 @@ public class PointLog implements Serializable {
         this.residentRef = residentRef;
         this.residentReportTime = new Date();
         this.wasHandled = false;
+        this.messages = new ArrayList<>();
     }
 
     /**
@@ -95,6 +98,7 @@ public class PointLog implements Serializable {
             resident = SHREVE_RESIDENT + resident;
         }
 
+        this.messages = new ArrayList<>();
 
     }
 
@@ -235,23 +239,11 @@ public class PointLog implements Serializable {
 
     public Boolean wasHandled() { return  wasHandled; }
 
-    public ArrayList<String> getDetailedMessageList(){
-        ArrayList<String> messages = new ArrayList<>();
-        String mainMessage = resident+" reported a point for \n\n\""+
-                getPointType().getPointDescription()+"\".\n\n" +
-                "The description they provided was: \n\n\""+pointDescription+"\".";
-        messages.add(mainMessage);
-        if(wasHandled){
-            if (wasRejected()){
-                messages.add("Point was rejected by: "+approvedBy+".");
-            }
-            else{
-                messages.add("Point was approved by: "+approvedBy+".");
-            }
-        }
-        messages.add("------------------");
+    public List<PointLogMessage> getMessages() {
         return messages;
     }
 
-
+    public void setMessages(List<PointLogMessage> msg){
+        this.messages = msg;
+    }
 }

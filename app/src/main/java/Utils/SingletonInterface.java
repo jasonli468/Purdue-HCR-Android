@@ -13,6 +13,7 @@ import java.util.Map;
 import Models.House;
 import Models.Link;
 import Models.PointLog;
+import Models.PointLogMessage;
 import Models.PointType;
 import Models.Reward;
 import Models.SystemPreferences;
@@ -56,4 +57,6 @@ public interface SingletonInterface {
     default void onGetAllHousePointsSuccess(List<PointLog> houseLogs){
 
     }
+
+    default void onGetPointLogMessageUpdates(List<PointLogMessage> messages){}
 }

@@ -4,9 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import Models.PointLogMessage;
 import Models.SystemPreferences;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -26,11 +29,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import Models.PointLog;
 import Utils.ApprovePointListAdapter;
 import Utils.FirebaseUtilInterface;
+import Utils.PointLogMessageAdapter;
 import Utils.Singleton;
 import Utils.SingletonInterface;
 
@@ -47,10 +52,30 @@ public class PointLogDetailsFragment extends Fragment {
 
     private EditText messageTextField;
 
-    private ScrollView scrollView;
+    private RecyclerView recyclerView;
 
-    private TextView displayMessagesTextView;
+    private PointLogMessageAdapter adapter;
+    private LinearLayoutManager manager;
 
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        //Handle Updating
+        singleton.handlePointLogUpdates(log, new SingletonInterface() {
+            @Override
+            public void onError(Exception e, Context context) {
+                Toast.makeText(context,"Failed to update messages.",Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onGetPointLogMessageUpdates(List<PointLogMessage> messages) {
+                log.setMessages(messages);
+                adapter.notifyDataSetChanged();
+            }
+        });
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -84,8 +109,9 @@ public class PointLogDetailsFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         AppCompatActivity activity = (AppCompatActivity) Objects.requireNonNull(getActivity());
         progressBar = activity.findViewById(R.id.navigationProgressBar);
-        initializeFields(activity);
         retrieveBundleData();
+        initializeFields(activity);
+
         //progressBar.setVisibility(View.VISIBLE);
         Objects.requireNonNull(activity.getSupportActionBar()).setTitle("Point Details");
 
@@ -99,10 +125,6 @@ public class PointLogDetailsFragment extends Fragment {
                 rejectButton.setVisibility(View.VISIBLE);
             }
         }
-        for(String str: log.getDetailedMessageList()){
-            displayMessagesTextView.append(str+"\n\n");
-        }
-        scrollToBottom();
     }
 
     /**
@@ -177,20 +199,13 @@ public class PointLogDetailsFragment extends Fragment {
 
         messageTextField = activity.findViewById(R.id.log_detail_message_edit_field);
 
-        scrollView = activity.findViewById(R.id.log_detail_scroll_view);
+        recyclerView = activity.findViewById(R.id.log_detail_history_list);
+        adapter = new PointLogMessageAdapter(log,context);
+        manager = new LinearLayoutManager(context);
+        recyclerView.setLayoutManager(manager);
+        recyclerView.setAdapter(adapter);
 
-        displayMessagesTextView = activity.findViewById(R.id.log_detail_text_display);
     }
 
-    /**
-     * Scroll to the bottom of the scroll view that contains the messages
-     */
-    private void scrollToBottom(){
-        scrollView.post(new Runnable() {
-            public void run() {
-                scrollView.fullScroll(View.FOCUS_DOWN);
-            }
-        });
-    }
 
 }

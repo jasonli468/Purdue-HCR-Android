@@ -13,7 +13,9 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -26,9 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 import Models.House;
 import Models.Link;
 import Models.PointLog;
+import Models.PointLogMessage;
 import Models.PointType;
 import Models.Reward;
 import Models.SystemPreferences;
@@ -768,6 +773,27 @@ public class FirebaseUtil {
                     }
                 })
                 .addOnFailureListener(e -> fui.onError(e, context));
+    }
+
+    public void handlePointLogUpdates(PointLog log, String house, final FirebaseUtilInterface fui){
+        CollectionReference housePointRef = db.collection("House").document(house)
+                .collection("Points").document(log.getLogID())
+                .collection("Messages");
+        housePointRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if( e != null){
+                    fui.onError(e,context);
+                }
+                else{
+                    List<PointLogMessage> messages = new ArrayList<>();
+                    for(DocumentSnapshot doc : queryDocumentSnapshots){
+                        messages.add(new PointLogMessage(doc.getData()));
+                    }
+                    fui.onGetPointLogMessageUpdates(messages);
+                }
+            }
+        });
     }
 
 }

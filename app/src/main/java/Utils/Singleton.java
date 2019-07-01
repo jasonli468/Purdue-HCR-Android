@@ -14,6 +14,7 @@ import java.util.Map;
 import Models.House;
 import Models.Link;
 import Models.PointLog;
+import Models.PointLogMessage;
 import Models.PointType;
 import Models.Reward;
 import Models.SystemPreferences;
@@ -439,6 +440,20 @@ public class Singleton {
             @Override
             public void onError(Exception e, Context context) {
                 sui.onError(e,context);
+            }
+        });
+    }
+
+    public void handlePointLogUpdates(PointLog log, final SingletonInterface sui){
+        fbutil.handlePointLogUpdates(log, houseName, new FirebaseUtilInterface() {
+            @Override
+            public void onError(Exception e, Context context) {
+                sui.onError(e,context);
+            }
+
+            @Override
+            public void onGetPointLogMessageUpdates(List<PointLogMessage> messages) {
+                sui.onGetPointLogMessageUpdates(messages);
             }
         });
     }
