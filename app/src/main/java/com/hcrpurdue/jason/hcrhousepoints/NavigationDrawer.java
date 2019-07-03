@@ -78,9 +78,11 @@ public class NavigationDrawer extends AppCompatActivity {
 
         menu = navigationView.getMenu();
 
+        //Use the permission levels to set the appropriate navigation menu options
         try {
             if (singleton.getPermissionLevel() > 0) {
                 menu.findItem(R.id.nav_approve).setVisible(true);
+                menu.findItem(R.id.point_history).setVisible(true);
             }
         } catch (Exception e) {
             Toast.makeText(NavigationDrawer.this, "Error loading permission level", Toast.LENGTH_LONG).show();
@@ -110,17 +112,17 @@ public class NavigationDrawer extends AppCompatActivity {
         actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         drawerLayout = findViewById(R.id.drawer_layout);
 
-        if (singleton.showDialog()) {
-            new AlertDialog.Builder(this)
-                    .setTitle("Development Committee")
-                    .setMessage("Are you interested in helping development for the Purdue HCR app? If so, click \"I'm In\" below to join the Discord where we'll be coordinating everything!")
-                    .setPositiveButton("I'm in!", (dialog, whichButton) -> {
-                        Intent reportIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://discordapp.com/invite/jptXrYG"));
-                        reportIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(reportIntent);
-                    })
-                    .setNegativeButton("No thanks", null).show();
-        }
+//        if (singleton.showDialog()) {
+////            new AlertDialog.Builder(this)
+////                    .setTitle("Development Committee")
+////                    .setMessage("Are you interested in helping development for the Purdue HCR app? If so, click \"I'm In\" below to join the Discord where we'll be coordinating everything!")
+////                    .setPositiveButton("I'm in!", (dialog, whichButton) -> {
+////                        Intent reportIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://discordapp.com/invite/jptXrYG"));
+////                        reportIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+////                        startActivity(reportIntent);
+////                    })
+////                    .setNegativeButton("No thanks", null).show();
+////        }
 
         navigationView.setNavigationItemSelectedListener(
                 menuItem -> {
