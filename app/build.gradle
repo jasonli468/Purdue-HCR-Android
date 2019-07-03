@@ -47,7 +47,6 @@ dependencies {
     implementation 'androidmads.library.qrgenearator:QRGenearator:1.0.3'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
 
-
 }
 
 apply plugin: 'com.google.gms.google-services'

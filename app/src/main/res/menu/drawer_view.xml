@@ -20,6 +20,18 @@
             android:icon="@drawable/ic_camera_enhance"
             android:title="QR Scanner" />
         <item
+            android:id="@+id/nav_qr_code_list"
+            android:title="View Your QR Codes"
+            android:icon="@drawable/ic_qrcode"
+            android:visible="false"
+            />
+        <item
+            android:id="@+id/point_history"
+            android:title="House Point History"
+            android:icon="@drawable/history_white_icon"
+            android:visible="false"
+            />
+        <item
             android:id="@+id/nav_signout"
             android:icon="@android:drawable/ic_lock_power_off"
             android:title="Sign Out" />
@@ -27,19 +39,16 @@
             android:id="@+id/nav_report_issue"
             android:icon="@drawable/ic_error"
             android:title="Report an Issue" />
-
-        <item
-            android:id="@+id/nav_qr_code_list"
-            android:title="View Your QR Codes"
-            android:icon="@drawable/ic_qrcode"
-            android:visible="false"
-            />
         <item
             android:id="@+id/nav_qr_code_display"
             android:visible="false"
             />
         <item
             android:id="@+id/generateQRCode"
+            android:visible="false"
+            />
+        <item
+            android:id="@+id/nav_point_log_details"
             android:visible="false"
             />
     </group>
