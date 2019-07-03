@@ -73,6 +73,7 @@ public class PointLogDetailsFragment extends Fragment {
             public void onGetPointLogMessageUpdates(List<PointLogMessage> messages) {
                 log.setMessages(messages);
                 adapter.notifyDataSetChanged();
+                recyclerView.scrollToPosition(messages.size());
             }
         });
     }
@@ -145,11 +146,29 @@ public class PointLogDetailsFragment extends Fragment {
     private void initializeFields(AppCompatActivity activity){
         progressBar = activity.findViewById(R.id.navigationProgressBar);
 
+        messageTextField = activity.findViewById(R.id.log_detail_message_edit_field);
+
         sendMessageButton = activity.findViewById(R.id.log_detail_send_button);
         sendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context, "Send", Toast.LENGTH_LONG).show();
+                String message = messageTextField.getText().toString();
+                if(message == null || message.equals("")|| message.matches("\\s*")){
+                    return;
+                }
+                messageTextField.setText("");
+                singleton.postMessageToPointLog(log, message, new SingletonInterface() {
+                    @Override
+                    public void onSuccess() {
+                        progressBar.setVisibility(View.INVISIBLE);
+                    }
+
+                    @Override
+                    public void onError(Exception e, Context context) {
+                        Toast.makeText(context,"Failed with error: "+e.getMessage(), Toast.LENGTH_LONG ).show();
+                        progressBar.setVisibility(View.INVISIBLE);
+                    }
+                });
             }
         });
         rejectButton = activity.findViewById(R.id.log_detail_reject_button);
@@ -158,14 +177,19 @@ public class PointLogDetailsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 progressBar.setVisibility(View.VISIBLE);
-                singleton.handlePointLog(log, false, new SingletonInterface() {
+                singleton.handlePointLog(log, false,false, new SingletonInterface() {
                     @Override
                     public void onSuccess() {
                         Toast.makeText(context,"Success",Toast.LENGTH_LONG).show();
+                        progressBar.setVisibility(View.INVISIBLE);
+                        rejectButton.setVisibility(View.GONE);
+                        approveButton.setVisibility(View.GONE);
+                        changeStatusButton.setVisibility(View.VISIBLE);
                     }
                     @Override
                     public void onError(Exception e, Context context){
                         Toast.makeText(context,"Failed with error: "+e.getMessage(), Toast.LENGTH_LONG ).show();
+                        progressBar.setVisibility(View.INVISIBLE);
                     }
                 });
             }
@@ -176,14 +200,19 @@ public class PointLogDetailsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 progressBar.setVisibility(View.VISIBLE);
-                singleton.handlePointLog(log, true, new SingletonInterface() {
+                singleton.handlePointLog(log, true,false, new SingletonInterface() {
                     @Override
                     public void onSuccess() {
                         Toast.makeText(context,"Success",Toast.LENGTH_LONG).show();
+                        progressBar.setVisibility(View.INVISIBLE);
+                        rejectButton.setVisibility(View.GONE);
+                        approveButton.setVisibility(View.GONE);
+                        changeStatusButton.setVisibility(View.VISIBLE);
                     }
                     @Override
                     public void onError(Exception e, Context context){
                         Toast.makeText(context,"Failed with error: "+e.getMessage(), Toast.LENGTH_LONG ).show();
+                        progressBar.setVisibility(View.INVISIBLE);
                     }
                 });
             }
@@ -193,11 +222,21 @@ public class PointLogDetailsFragment extends Fragment {
             //TODO Change this to the new method
             @Override
             public void onClick(View view) {
-                Toast.makeText(context, "Change", Toast.LENGTH_LONG).show();
+                progressBar.setVisibility(View.VISIBLE);
+                singleton.handlePointLog(log, log.wasRejected(),true, new SingletonInterface() {
+                    @Override
+                    public void onSuccess() {
+                        Toast.makeText(context,"Success",Toast.LENGTH_LONG).show();
+                        progressBar.setVisibility(View.INVISIBLE);
+                    }
+                    @Override
+                    public void onError(Exception e, Context context){
+                        Toast.makeText(context,"Failed with error: "+e.getMessage(), Toast.LENGTH_LONG ).show();
+                        progressBar.setVisibility(View.INVISIBLE);
+                    }
+                });
             }
         });
-
-        messageTextField = activity.findViewById(R.id.log_detail_message_edit_field);
 
         recyclerView = activity.findViewById(R.id.log_detail_history_list);
         adapter = new PointLogMessageAdapter(log,context);

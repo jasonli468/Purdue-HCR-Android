@@ -4,17 +4,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp"
-    android:background="@color/white">
+    android:padding="20dp"
+    android:background="@drawable/border">
 
     <LinearLayout
         android:id="@+id/message_left_column"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true"
-        android:gravity="center">
+        android:gravity="center"
+        >
 
         <ImageView
             android:id="@+id/message_image"
@@ -27,7 +26,6 @@
             android:id="@+id/point_log_first_name"
             android:layout_width="50dp"
             android:layout_height="20dp"
-            app:autoSizeTextType="uniform"
             android:textAlignment="center"
             android:text="First Name"
             />
@@ -35,7 +33,6 @@
             android:id="@+id/point_log_last_name"
             android:layout_width="50dp"
             android:layout_height="20dp"
-            app:autoSizeTextType="uniform"
             android:textAlignment="center"
             android:text="Last Name"
             />
@@ -44,10 +41,10 @@
     <LinearLayout
         android:id="@+id/message_right_column"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         android:layout_alignParentEnd="true"
-        android:padding="5dp"
+        android:padding="10dp"
         android:layout_centerVertical="true"
         android:layout_toEndOf="@id/message_left_column"
         >

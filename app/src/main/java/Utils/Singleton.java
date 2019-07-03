@@ -430,11 +430,27 @@ public class Singleton {
      * @paramad approved               boolean:    Was the log approved?
      * @param sui                    FirebaseUtilInterface: Implement the OnError and onSuccess methods
      */
-    public void handlePointLog(PointLog log, boolean approved, SingletonInterface sui){
-        fbutil.handlePointLog(log, approved, getHouse(), getName(), new FirebaseUtilInterface() {
+    public void handlePointLog(PointLog log, boolean approved, boolean updating, SingletonInterface sui){
+        fbutil.updatePointLogStatus(log, approved, getHouse(),updating,false, new FirebaseUtilInterface() {
             @Override
             public void onSuccess() {
-                sui.onSuccess();
+                String msg = getName()+" rejected the point request.";
+                if(approved){
+                    msg = getName()+" approved the point request.";
+                }
+                PointLogMessage plm = new PointLogMessage(msg, getName().split(" ")[0], getName().split(" ")[1],getPermissionLevel());
+                fbutil.postMessageToPointLog(log, getHouse(), plm, new FirebaseUtilInterface() {
+                    @Override
+                    public void onSuccess() {
+
+                        sui.onSuccess();
+                    }
+
+                    @Override
+                    public void onError(Exception e, Context context) {
+                        sui.onError(e,context);
+                    }
+                });
             }
 
             @Override
@@ -444,6 +460,11 @@ public class Singleton {
         });
     }
 
+    /**
+     * Retrieve the updates to a point log object as they occur. Used to update pointlog details page
+     * @param log
+     * @param sui
+     */
     public void handlePointLogUpdates(PointLog log, final SingletonInterface sui){
         fbutil.handlePointLogUpdates(log, houseName, new FirebaseUtilInterface() {
             @Override
@@ -456,5 +477,36 @@ public class Singleton {
                 sui.onGetPointLogMessageUpdates(messages);
             }
         });
+    }
+
+    /**
+     * Add a message to the point log
+     * @param log   Log to which the message should be posted
+     * @param plm   PointLogMessage to post
+     * @param sui   SingletonInterface with onSuccess and onError
+     */
+    public void postMessageToPointLog(PointLog log, PointLogMessage plm, SingletonInterface sui){
+        fbutil.postMessageToPointLog(log, getHouse(), plm, new FirebaseUtilInterface() {
+            @Override
+            public void onSuccess() {
+                sui.onSuccess();
+            }
+
+            @Override
+            public void onError(Exception e, Context context) {
+                sui.onError(e,context);
+            }
+        });
+    }
+
+    /**
+     * Add a message to the point log
+     * @param log   Log to which the message should be posted
+     * @param message   message to post
+     * @param sui   SingletonInterface with onSuccess and onError
+     */
+    public void postMessageToPointLog(PointLog log, String message, SingletonInterface sui){
+        PointLogMessage plm = new PointLogMessage(message, getName().split(" ")[0], getName().split(" ")[1], getPermissionLevel());
+        postMessageToPointLog(log,plm,sui);
     }
 }

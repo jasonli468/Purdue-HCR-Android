@@ -99,7 +99,7 @@ public class ApprovePointListAdapter extends BaseAdapter implements ListAdapter 
 
         approveBtn.setOnClickListener(v -> {
             spinner.setVisibility(View.VISIBLE);
-            fbutil.handlePointLog(log, true, house, name, new FirebaseUtilInterface() {
+            Singleton.getInstance(context).handlePointLog(log, true,false, new SingletonInterface() {
                 @Override
                 public void onSuccess() {
                     list.remove(position);
@@ -110,7 +110,7 @@ public class ApprovePointListAdapter extends BaseAdapter implements ListAdapter 
         });
         denyBtn.setOnClickListener(v -> {
             spinner.setVisibility(View.VISIBLE);
-            fbutil.handlePointLog(log, false, house, name, new FirebaseUtilInterface() {
+            Singleton.getInstance(context).handlePointLog(log, false,false, new SingletonInterface() {
                 @Override
                 public void onSuccess() {
                     list.remove(position);

@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.util.Pair;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
@@ -87,7 +88,7 @@ public class FirebaseUtil {
                                     .addOnSuccessListener(aVoid -> {
                                         //if the point is preapproved, update the house and user points
                                         if (preapproved) {
-                                            updateHouseAndUserPointsWithApprovedLog(log, house, fui);
+                                            updateHouseAndUserPoints(log, house,false,false, fui);
                                         } else {
                                             fui.onSuccess();
                                         }
@@ -114,7 +115,7 @@ public class FirebaseUtil {
                                                     .addOnSuccessListener(aVoid1 -> {
                                                         //if the point is preapproved, update the house and user points
                                                         if (preapproved) {
-                                                            updateHouseAndUserPointsWithApprovedLog(log, house, fui);
+                                                            updateHouseAndUserPoints(log, house,false,false, fui);
                                                         } else {
                                                             fui.onSuccess();
                                                         }
@@ -148,39 +149,11 @@ public class FirebaseUtil {
      *
      * @param log                    PointLog:   The PointLog that is to be either approved or denied
      * @paramad approved               boolean:    Was the log approved?
-     * @param approvingOrDenyingUser String:     Username of the account who is approving or denying point log
      * @param house                  String:     The house that the pointlog belongs to
      * @param fui                    FirebaseUtilInterface: Implement the OnError and onSuccess methods
      */
-    public void handlePointLog(PointLog log, boolean approved, String house, String approvingOrDenyingUser, FirebaseUtilInterface fui) {
-        DocumentReference housePointRef = db.collection("House").document(house).collection("Points").document(log.getLogID());
-
-
-        String descript = log.getPointDescription();
-        if (!approved) {
-            descript = "DENIED: " + descript;
-        }
-
-        //Create the map that will update the point log
-        Map<String, Object> data = new HashMap<>();
-        data.put("PointTypeID", log.getType().getPointID());
-        data.put("ApprovedBy", approvingOrDenyingUser);
-        data.put("ApprovedOn", Timestamp.now());
-        data.put("Description", descript);
-
-
-        //update the point log
-        housePointRef.update(data)
-                .addOnSuccessListener((Void aVoid) -> {
-                    //If the point log was successfully updated, update the points in house and user
-                    if (approved) {
-                        updateHouseAndUserPointsWithApprovedLog(log, house, fui);
-                    } else
-                        fui.onSuccess();
-                })
-                //If failed, call the onError
-                .addOnFailureListener(e -> fui.onError(e, context));
-
+    public void handlePointLog(PointLog log, boolean approved, String house, FirebaseUtilInterface fui) {
+        updatePointLogStatus(log,approved,house,false,false,fui);
     }
 
     /**
@@ -190,11 +163,10 @@ public class FirebaseUtil {
      * @param log   - PointLog to be updated. (Do not set updateApprovalStatus on the log.)
      * @param approved  - Boolean if the point is approved
      * @param house     - String for the house that the point belongs to
-     * @param approvingOrDenyingUser    - Name of the User who is chaning the status
      * @param updating              - Boolean for if this point is being updated or set for the first time
      * @param fui   - FirebaseUtilInterface that implements on Success and On Error
      */
-    public void updatePointLogStatus(PointLog log, boolean approved, String house, String approvingOrDenyingUser, boolean updating, FirebaseUtilInterface fui) {
+    public void updatePointLogStatus(PointLog log, boolean approved, String house, boolean updating, boolean isRECGrantingAward, FirebaseUtilInterface fui) {
         DocumentReference housePointRef = db.collection("House").document(house).collection("Points").document(log.getLogID());
         log.updateApprovalStatus(approved,context);
         housePointRef.get()
@@ -217,6 +189,12 @@ public class FirebaseUtil {
                                     housePointRef.update(log.convertToDict()).addOnCompleteListener(task1 -> {
                                         if(task1.isSuccessful()){
                                             //TODO Update the House and User points based on approval and updating
+                                            if((approved || updating)){
+                                                updateHouseAndUserPoints(log,house,updating,isRECGrantingAward,fui);
+                                            }
+                                            else{
+                                                fui.onSuccess();
+                                            }
                                         }
                                         else{
                                             fui.onError(task1.getException(), context);
@@ -244,20 +222,25 @@ public class FirebaseUtil {
      * @param house String:     The house that contains the PointLog
      * @param fui   FirebaseUtilInterface:  Implement the onError and the onSuccess
      */
-    private void updateHouseAndUserPointsWithApprovedLog(PointLog log, String house, FirebaseUtilInterface fui) {
+    private void updateHouseAndUserPoints(PointLog log, String house, boolean isUpdating, boolean isRECGrantingAward, FirebaseUtilInterface fui) {
         //Update the house points first. We want to update one at a time, so there is no concurrent calling of fui methods
-        updateHousePoints(log, house, new FirebaseUtilInterface() {
+        updateHousePoints(log, house, isUpdating, new FirebaseUtilInterface() {
             @Override
             public void onSuccess() {
                 //If house is updated sucessfully, update the user's points.
                 //The reason we update house points first is if one of the writes
                 // fails, we want either no one gets the points, or the house gets the points.
-                updateUserPoints(log, new FirebaseUtilInterface() {
-                    @Override
-                    public void onSuccess() {
-                        fui.onSuccess();
-                    }
-                });
+
+                //If the REC is granting points, don't update any user point
+                if(!isRECGrantingAward){
+                    updateUserPoints(log, isUpdating, new FirebaseUtilInterface() {
+                        @Override
+                        public void onSuccess() {
+                            fui.onSuccess();
+                        }
+                    });
+                }
+
             }
         });
     }
@@ -269,7 +252,7 @@ public class FirebaseUtil {
      * @param house String:     House to add the points to
      * @param fui   FirebaseUtilInterface:  Implement the onError and the onSuccess
      */
-    private void updateHousePoints(PointLog log, String house, FirebaseUtilInterface fui) {
+    private void updateHousePoints(PointLog log, String house, Boolean isUpdating, FirebaseUtilInterface fui) {
         //Create the reference for the house
         final DocumentReference houseRef = db.collection("House").document(house);
 
@@ -281,8 +264,23 @@ public class FirebaseUtil {
             if (oldCount == null) {
                 oldCount = 0L;
             }
-            long newCount = oldCount + log.getType().getPointValue();
-            transaction.update(houseRef, "TotalPoints", newCount);
+            Long newTotal = oldCount;
+            //Update a local value with the correct point value
+            if(isUpdating){
+                //If log was already approved or rejected, and the status has been changed perform logic.
+                if(log.wasRejected()){
+                    newTotal -= log.getType().getPointValue(); //Log was approved but is now rejected, so remove points
+                }
+                else{
+                    newTotal += log.getType().getPointValue(); // Log was rejected, but is now approved
+                }
+            }
+            else{
+                //This is the first time the point has been handled, so just add the point
+                newTotal += log.getType().getPointValue();
+            }
+
+            transaction.update(houseRef, "TotalPoints", newTotal);
 
             // Success, kill the transaction with a return null
             return null;
@@ -297,7 +295,7 @@ public class FirebaseUtil {
      * @param log PointLog:   Log that was approved and contains the point value and the ResidentReference
      * @param fui FirebaseUtilInterface:  Implement the onError and the onSuccess
      */
-    private void updateUserPoints(PointLog log, FirebaseUtilInterface fui) {
+    private void updateUserPoints(PointLog log, Boolean isUpdating, FirebaseUtilInterface fui) {
         //Create reference for resident
         final DocumentReference residentRef = log.getResidentRef();
 
@@ -309,8 +307,22 @@ public class FirebaseUtil {
             if (oldCount == null) {
                 oldCount = 0L;
             }
-            long newCount = oldCount + log.getType().getPointValue();
-            transaction.update(residentRef, "TotalPoints", newCount);
+            Long newTotal = oldCount;
+            //Update a local value with the correct point value
+            if(isUpdating){
+                //If log was already approved or rejected, and the status has been changed perform logic.
+                if(log.wasRejected()){
+                    newTotal -= log.getType().getPointValue(); //Log was approved but is now rejected, so remove points
+                }
+                else{
+                    newTotal += log.getType().getPointValue(); // Log was rejected, but is now approved
+                }
+            }
+            else{
+                //This is the first time the point has been handled, so just add the point
+                newTotal += log.getType().getPointValue();
+            }
+            transaction.update(residentRef, "TotalPoints", newTotal);
 
             // Success, kill the transaction with a return null
             return null;
@@ -779,7 +791,7 @@ public class FirebaseUtil {
         CollectionReference housePointRef = db.collection("House").document(house)
                 .collection("Points").document(log.getLogID())
                 .collection("Messages");
-        housePointRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        housePointRef.orderBy(PointLogMessage.MESSAGE_CREATION_DATE_KEY, Query.Direction.ASCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                 if( e != null){
@@ -792,6 +804,19 @@ public class FirebaseUtil {
                     }
                     fui.onGetPointLogMessageUpdates(messages);
                 }
+            }
+        });
+    }
+
+    public void postMessageToPointLog(PointLog log, String house, PointLogMessage message, FirebaseUtilInterface fui){
+        CollectionReference pointMessageRef = db.collection("House").document(house)
+                .collection("Points").document(log.getLogID())
+                .collection("Messages");
+        pointMessageRef.add(message.generateFirebaseMap()).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                System.out.println("Finishjed");
+                fui.onSuccess();
             }
         });
     }

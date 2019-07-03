@@ -60,6 +60,9 @@ public class PointLogMessageAdapter extends RecyclerView.Adapter<PointLogMessage
     public void onBindViewHolder(@NonNull PointLogMessageHolder holder, int position) {
 
         if(position == 0) {
+            holder.descriptionLabel.setVisibility(View.VISIBLE);
+            holder.pointTypeLabel.setVisibility(View.VISIBLE);
+            holder.pointTypeView.setVisibility(View.VISIBLE);
             holder.firstNameView.setText( log.getResident().split(" ")[0]);
             holder.lastNameView.setText( log.getResident().split(" ")[1]);
             int drawableID = context.getResources().getIdentifier(singleton.getHouse().toLowerCase(), "drawable", context.getPackageName());
