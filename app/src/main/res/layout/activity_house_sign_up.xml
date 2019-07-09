@@ -83,13 +83,13 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
-        android:id="@+id/sign_up_button"
+        android:id="@+id/join_button"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:onClick="signUp"
+        android:onClick="join"
         android:text="@string/link_house_button"
         android:layout_below="@id/house_code_input_layout"/>
 </RelativeLayout>
