@@ -3,6 +3,7 @@ package com.hcrpurdue.jason.hcrhousepoints.Activities;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
@@ -65,11 +66,21 @@ public class HouseSignUpActivity extends AppCompatActivity {
     }
 
     public void join(View view){
+        joinButton.setEnabled(false);
         String first = firstNameEditText.getText().toString();
         String last = lastNameEditText.getText().toString();
         String code = houseCodeEditText.getText().toString();
         if(areFieldsValid(first,last,code) && houseCodeMatches(code)){
             createUser();
+        }
+        else{
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    joinButton.setEnabled(true);
+                }
+            }, 2000);
+
         }
     }
 
@@ -139,7 +150,10 @@ public class HouseSignUpActivity extends AppCompatActivity {
                         singleton.setUserData(floor, house, firstName,lastName, 0, id);
                         launchInitializationActivity();
                     })
-                    .addOnFailureListener(e -> Toast.makeText(this, "Could not create user. Please try again.", Toast.LENGTH_LONG).show());
+                    .addOnFailureListener(e -> {
+                            joinButton.setEnabled(true);
+                            Toast.makeText(this, "Could not create user. Please try again.", Toast.LENGTH_LONG).show();
+                    });
         } else {
             Toast.makeText(this, "Error loading user after authentication, please try logging in", Toast.LENGTH_LONG).show();
             Log.e("Authentication", "User was generated in FirebaseAuth but was not loaded");
@@ -153,6 +167,27 @@ public class HouseSignUpActivity extends AppCompatActivity {
         Intent intent = new Intent(this, AppInitializationActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    /**
+     * Transition to Sign In Activity
+     */
+    private void launchSignInActivity(){
+        Intent intent = new Intent(this, LogInActivity.class);
+        startActivity(intent);
+        overridePendingTransition(R.anim.slide_in_reverse,R.anim.slide_out_reverse);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(isTaskRoot()){
+            launchSignInActivity();
+        }
+        else{
+            super.onBackPressed();
+            overridePendingTransition(R.anim.slide_in_reverse,R.anim.slide_out_reverse);
+        }
+
     }
 
 }

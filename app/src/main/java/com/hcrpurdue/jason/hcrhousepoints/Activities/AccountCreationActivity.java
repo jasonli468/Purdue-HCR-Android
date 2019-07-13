@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
-import android.util.Pair;
 import android.util.Patterns;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -16,12 +14,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.hcrpurdue.jason.hcrhousepoints.R;
-import com.hcrpurdue.jason.hcrhousepoints.Utils.Singleton;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class AccountCreationActivity extends AppCompatActivity {
 
@@ -31,6 +24,10 @@ public class AccountCreationActivity extends AppCompatActivity {
     private EditText confirmPasswordEditText;
     private Button signUpButton;
 
+    /**
+     * Called when the Activity is created.
+     * @param savedInstanceState When any state information is passed in through a bundle, it will be found here
+     */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         auth = FirebaseAuth.getInstance();
@@ -39,6 +36,9 @@ public class AccountCreationActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Connect the views to the local class variables
+     */
     private void initializeViews(){
         emailEditText = findViewById(R.id.email_input);
         passwordEditText = findViewById(R.id.password_input);
@@ -51,7 +51,7 @@ public class AccountCreationActivity extends AppCompatActivity {
      * @param view
      */
     public void signUp(View view) {
-
+        signUpButton.setEnabled(false);
         final String emailText = emailEditText.getText().toString();
         final String passwordText = passwordEditText.getText().toString();
         final String confirmPasswordText = confirmPasswordEditText.getText().toString();
@@ -62,8 +62,9 @@ public class AccountCreationActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             launchHouseSignUpActivity();
                         } else {
-                            Toast.makeText(this, "Authentication failed, try again then contact an RHP.",
+                            Toast.makeText(this, task.getException().getMessage(),
                                     Toast.LENGTH_SHORT).show();
+                            signUpButton.setEnabled(true);
                         }
                     });
         }
@@ -110,9 +111,23 @@ public class AccountCreationActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Transition to House Sign Up activity
+     */
     private void launchHouseSignUpActivity(){
         Intent intent = new Intent(this, HouseSignUpActivity.class);
         startActivity(intent);
         finish();
+        overridePendingTransition(R.anim.slide_in,R.anim.slide_out);
+    }
+
+    /**
+     * If the back button on the bottom bar is pressed, transition the app back to the previous page
+     */
+    @Override
+    public void onBackPressed() {
+            super.onBackPressed();
+            overridePendingTransition(R.anim.slide_in_reverse,R.anim.slide_out_reverse);
+
     }
 }

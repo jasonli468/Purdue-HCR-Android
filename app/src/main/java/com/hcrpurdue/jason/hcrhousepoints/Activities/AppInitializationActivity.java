@@ -118,12 +118,14 @@ public class AppInitializationActivity extends AppCompatActivity {
         Intent intent = new Intent(this, NavigationDrawer.class);
         intent.putExtra("PointSubmitted", false);
         startActivity(intent);
+        overridePendingTransition(R.anim.fade_in,R.anim.fade_out);
         finish();
     }
 
     private void launchHouseSignUpActivity(){
         Intent intent = new Intent(this, HouseSignUpActivity.class);
         startActivity(intent);
+        overridePendingTransition(R.anim.fade_in,R.anim.fade_out);
         finish();
     }
 
@@ -136,7 +138,7 @@ public class AppInitializationActivity extends AppCompatActivity {
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            Toast.makeText(AppInitializationActivity.this,"Please restart the app.",Toast.LENGTH_SHORT).show();
+                            launchSignInActivity();
                         }
                     }).show();
 

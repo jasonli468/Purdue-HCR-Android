@@ -37,9 +37,11 @@ public class LogInActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         singleton = Singleton.getInstance(getApplicationContext());
         initializeViews();
+        handleLogOutIfLoggedIn();
+    }
 
-
-
+    private void handleLogOutIfLoggedIn(){
+        auth.signOut();
     }
 
     /**
@@ -58,6 +60,7 @@ public class LogInActivity extends AppCompatActivity {
      * @param view
      */
     public void signIn(View view) {
+        logInButton.setEnabled(false);
         if(!signInInvalid(emailEditText,passwordEditText)){
 
             String email = emailEditText.getText().toString();
@@ -70,9 +73,13 @@ public class LogInActivity extends AppCompatActivity {
                         } else {
                             Toast.makeText(this, "Authentication failed. Please verify your email and password and try again.",
                                     Toast.LENGTH_LONG).show();
+                            logInButton.setEnabled(true);
                             //findViewById(R.id.authenticationProgressBar).setVisibility(View.GONE);
                         }
                     });
+        }
+        else{
+            logInButton.setEnabled(true);
         }
 
     }
@@ -114,7 +121,6 @@ public class LogInActivity extends AppCompatActivity {
     private void launchInitializationActivity() {
         Intent intent = new Intent(this, AppInitializationActivity.class);
         startActivity(intent);
-        finish();
     }
 
     /**
@@ -122,11 +128,11 @@ public class LogInActivity extends AppCompatActivity {
      * @param view view passed by button press
      */
     public void launchAccountCreationActivity(View view){
-//        Toast.makeText(getApplicationContext(), "Create Account",
-//        Toast.LENGTH_SHORT).show();
+        createAccountButton.setEnabled(false);
         Intent intent = new Intent(this, AccountCreationActivity.class);
         startActivity(intent);
-        finish();
+        overridePendingTransition(R.anim.slide_in,R.anim.slide_out);
+        createAccountButton.setEnabled(true);
     }
 
 }
