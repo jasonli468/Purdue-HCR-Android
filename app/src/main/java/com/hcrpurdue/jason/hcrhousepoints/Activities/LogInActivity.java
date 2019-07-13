@@ -1,23 +1,32 @@
 package com.hcrpurdue.jason.hcrhousepoints.Activities;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Map;
 
+import com.hcrpurdue.jason.hcrhousepoints.Fragments.PasswordResetDialogFragment;
 import com.hcrpurdue.jason.hcrhousepoints.R;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.ForgotPasswordDialog;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.Singleton;
 
 public class LogInActivity extends AppCompatActivity {
@@ -133,6 +142,12 @@ public class LogInActivity extends AppCompatActivity {
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in,R.anim.slide_out);
         createAccountButton.setEnabled(true);
+    }
+
+
+    public void openPasswordResetDialog(View view) {
+        ForgotPasswordDialog forgotPasswordDialog = new ForgotPasswordDialog(this);
+        forgotPasswordDialog.show();
     }
 
 }

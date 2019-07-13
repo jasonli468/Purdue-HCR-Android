@@ -7,9 +7,12 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
 import com.hcrpurdue.jason.hcrhousepoints.R;
@@ -17,7 +20,6 @@ import com.hcrpurdue.jason.hcrhousepoints.R;
 public class PasswordResetDialogFragment extends AppCompatDialogFragment {
 
     private EditText passwordEntryEditText;
-    // private PassResetDialogListener listener;
     private String userEmail = "";
     private boolean isValidEmail = false;
 
@@ -30,31 +32,21 @@ public class PasswordResetDialogFragment extends AppCompatDialogFragment {
 
         builder.setView(view)
                 .setTitle("Reset Password")
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    dismiss();
                 })
-                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        userEmail = passwordEntryEditText.getText().toString().trim();
+                .setPositiveButton("Ok", (dialog, which) -> {
 
-
-                        if(TextUtils.isEmpty(userEmail)) {
-                            Toast.makeText(getContext(), "Please enter an email address", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        isValidEmail = true;
-
-                        /* TODO: Implement check to see if email is in Firebase */
+                    userEmail = passwordEntryEditText.getText().toString().trim();
+                    if(TextUtils.isEmpty(userEmail)) {
+                        Toast.makeText(getContext(), "Please enter an email address", Toast.LENGTH_SHORT).show();
+                        return;
                     }
 
+                    isValidEmail = true;
+                    dismiss();
+                    /* TODO: Implement check to see if email is in Firebase */
                 });
-
-        passwordEntryEditText = view.findViewById(R.id.forgot_password);
         return builder.create();
     }
 
@@ -66,19 +58,9 @@ public class PasswordResetDialogFragment extends AppCompatDialogFragment {
         return userEmail;
     }
 
-//    @Override
-//    public void onAttach(Context context) {
-//        super.onAttach(context);
-//
-//        try {
-//            listener = (PassResetDialogListener) context;
-//        } catch (ClassCastException e) {
-//            Toast.makeText(context, "Class Casting Error", Toast.LENGTH_SHORT).show();
-//        }
-//    }
-
-//    public interface PassResetDialogListener {
-//        void applyTexts(String email);
-//    }
-
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
 }
