@@ -2,7 +2,9 @@ package com.hcrpurdue.jason.hcrhousepoints.Models;
 
 import androidx.annotation.NonNull;
 
-public class PointType implements Comparable<PointType> {
+import java.io.Serializable;
+
+public class PointType implements Comparable<PointType>, Serializable {
 
     private int pointValue;
     private String pointDescription;
