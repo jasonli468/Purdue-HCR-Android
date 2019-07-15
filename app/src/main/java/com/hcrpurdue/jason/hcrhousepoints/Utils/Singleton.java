@@ -39,6 +39,7 @@ public class Singleton {
     private List<House> houseList = null;
     private List<Reward> rewardList = null;
     private ArrayList<Link> userCreatedQRCodes = null;
+    private List<PointLog> personalPointLogs = null;
     private SystemPreferences sysPrefs = null;
 
     private Singleton() {
@@ -224,7 +225,7 @@ public class Singleton {
     }
 
     public void submitPoints(String description, PointType type, SingletonInterface si) {
-        PointLog log = new PointLog(description, firstName, lastName, type, floorName, fbutil.getUserReference(userID));
+        PointLog log = new PointLog(description, firstName, lastName, type, floorName, fbutil.getUserReference(userID),userID);
         boolean preApproved = permissionLevel > 0;
         fbutil.submitPointLog(log, null, houseName, userID, preApproved, sysPrefs, new FirebaseUtilInterface() {
             @Override
@@ -242,7 +243,7 @@ public class Singleton {
                       type = pointType;
                   }
               }
-              PointLog log = new PointLog(link.getDescription(), firstName, lastName, type, floorName, fbutil.getUserReference(userID));
+              PointLog log = new PointLog(link.getDescription(), firstName, lastName, type, floorName, fbutil.getUserReference(userID), userID);
               fbutil.submitPointLog(log, (link.isSingleUse()) ? link.getLinkId() : null, houseName, userID, link.isSingleUse(), sysPrefs, new FirebaseUtilInterface() {
                   @Override
                   public void onSuccess() {
@@ -509,4 +510,32 @@ public class Singleton {
         PointLogMessage plm = new PointLogMessage(message, firstName, lastName, permissionLevel);
         postMessageToPointLog(log,plm,sui);
     }
+
+    /**
+     * init the logs for this user
+     * @param sui
+     */
+    public void initPersonalPointLogs(SingletonInterface sui){
+        fbutil.getPersonalPointLogs(userID, houseName, new FirebaseUtilInterface() {
+            @Override
+            public void onError(Exception e, Context context) {
+                sui.onError(e,context);
+            }
+
+            @Override
+            public void onGetPersonalPointLogs(List<PointLog> personalLogs) {
+                setPersonalPointLogs(personalLogs);
+                sui.onGetPersonalPointLogs(personalLogs);
+            }
+        });
+    }
+
+    public void setPersonalPointLogs(List<PointLog> logs){
+        personalPointLogs = logs;
+    }
+
+    public List<PointLog> getPersonalPointLogs(){
+        return personalPointLogs;
+    }
+
 }

@@ -6,6 +6,9 @@ import android.text.TextUtils;
 import android.util.Pair;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
@@ -755,6 +758,25 @@ public class FirebaseUtil {
                 fui.onSuccess();
             }
         });
+    }
+
+
+    public void getPersonalPointLogs(String userId, String house, final FirebaseUtilInterface fui){
+        CollectionReference personalPointReference = db.collection("House").document(house)
+                .collection("Points");
+        personalPointReference.whereEqualTo("ResidentId",userId).get()
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        List<PointLog> logs = new ArrayList<>();
+                        for(QueryDocumentSnapshot document : task.getResult()) {
+                            logs.add(new PointLog(document.getId(),document.getData(),context));
+                        }
+                        fui.onGetPersonalPointLogs(logs);
+                    }
+                    else{
+                        fui.onError(task.getException(),context);
+                    }
+                });
     }
 
 }

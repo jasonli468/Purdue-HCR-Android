@@ -6,11 +6,15 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -40,6 +44,7 @@ public class HouseOverviewFragment extends Fragment {
     private Resources resources;
     private String packageName;
     private ProgressBar progressBar;
+    private Button viewMyPointsButton;
 
     @Override
     public void onAttach(Context context) {
@@ -69,6 +74,22 @@ public class HouseOverviewFragment extends Fragment {
         ((ImageView) view.findViewById(R.id.statistics_house_icon_small)).setImageResource(drawableID);
         ((TextView) view.findViewById(R.id.statistics_user_name)).setText(singleton.getName());
         ((TextView) view.findViewById(R.id.statistics_floor_name)).setText(floorText);
+        viewMyPointsButton = view.findViewById(R.id.user_log_history_button);
+        viewMyPointsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Create destination fragment
+                Fragment fragment = new PersonalPointLogListFragment();
+
+                //Create Fragment manager
+                FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.content_frame, fragment, Integer.toString(R.id.nav_personal_point_log_list));
+                fragmentTransaction.addToBackStack(Integer.toString(R.id.nav_statistics));
+                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                fragmentTransaction.commit();
+            }
+        });
 
         SwipeRefreshLayout swipeRefresh = view.findViewById(R.id.statistics_swipe_refresh);
         swipeRefresh.setOnRefreshListener(() -> updatePointData(view, chart, swipeRefresh));

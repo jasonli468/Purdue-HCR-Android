@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.hcrpurdue.jason.hcrhousepoints.Models.House;
+import com.hcrpurdue.jason.hcrhousepoints.Models.PointLog;
 import com.hcrpurdue.jason.hcrhousepoints.Models.PointType;
 import com.hcrpurdue.jason.hcrhousepoints.Models.Reward;
 import com.hcrpurdue.jason.hcrhousepoints.Models.SystemPreferences;
@@ -111,7 +112,17 @@ public class AppInitializationActivity extends AppCompatActivity {
                             singleton.getPointStatistics(new SingletonInterface() {
                                 @Override
                                 public void onGetPointStatisticsSuccess(List<House> houses, int userPoints, List<Reward> rewards) {
-                                    launchNavigationActivity();
+                                    singleton.initPersonalPointLogs(new SingletonInterface() {
+                                        @Override
+                                        public void onGetPersonalPointLogs(List<PointLog> personalLogs) {
+                                            launchNavigationActivity();
+                                        }
+
+                                        @Override
+                                        public void onError(Exception e, Context context) {
+                                            handleDataInitializationError(e);
+                                        }
+                                    });
                                 }
 
                                 @Override

@@ -30,6 +30,7 @@ public class PointLog implements Serializable {
     private String residentFirstName;
     private String residentLastName;
     private DocumentReference residentRef;
+    private String residentId;
     private Date residentReportTime;
     private String logID;
     private List<PointLogMessage> messages;
@@ -49,7 +50,7 @@ public class PointLog implements Serializable {
      * @param residentRef      - Firebase reference for the user
      */
     public PointLog(String pointDescription, String first, String last, PointType type, String floorID,
-                    DocumentReference residentRef) {
+                    DocumentReference residentRef,String residentId) {
         this.pointDescription = pointDescription;
         this.type = type;
         this.residentLastName = last;
@@ -59,6 +60,7 @@ public class PointLog implements Serializable {
         this.residentReportTime = new Date();
         this.wasHandled = false;
         this.messages = new ArrayList<>();
+        this.residentId = residentId;
     }
 
     /**
@@ -80,6 +82,7 @@ public class PointLog implements Serializable {
         this.approvedBy = (String) document.get("ApprovedBy");
         this.residentReportTime = (Date) document.get("ResidentReportTime");
         this.approvedOn = (Date) document.get("ApprovedOn");
+        this.residentId = (String) document.get("ResidentId");
 
         int idValue = ((Long) document.get("PointTypeID")).intValue();
 
@@ -181,6 +184,7 @@ public class PointLog implements Serializable {
         dict.put("ResidentLastName", residentLastName);
         dict.put("ResidentRef", this.residentRef);
         dict.put("ResidentReportTime", this.residentReportTime);
+        dict.put("ResidentId", this.residentId);
 
         if(this.approvedBy != null) {
             dict.put("ApprovedBy", this.approvedBy);

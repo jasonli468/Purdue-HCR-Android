@@ -40,6 +40,7 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.hcrpurdue.jason.hcrhousepoints.Fragments.HouseOverviewFragment;
 import com.hcrpurdue.jason.hcrhousepoints.Fragments.HousePointHistoryFragment;
+import com.hcrpurdue.jason.hcrhousepoints.Fragments.PersonalPointLogListFragment;
 import com.hcrpurdue.jason.hcrhousepoints.Fragments.PointApprovalFragment;
 import com.hcrpurdue.jason.hcrhousepoints.Fragments.PointSubmissionFragment;
 import com.hcrpurdue.jason.hcrhousepoints.Fragments.PointTypeListFragment;
@@ -192,6 +193,9 @@ public class NavigationDrawer extends AppCompatActivity {
                             break;
                         case R.id.nav_submit_point:
                             fragmentClass = SubmitPointsFragment.class;
+                            break;
+                        case R.id.nav_personal_point_log_list:
+                            fragmentClass = PersonalPointLogListFragment.class;
                             break;
                         default:
                             fragmentClass = HouseOverviewFragment.class;

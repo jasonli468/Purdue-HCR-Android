@@ -29,13 +29,11 @@ import com.hcrpurdue.jason.hcrhousepoints.Utils.Singleton;
 public class PointLogAdapter extends BaseAdapter  implements ListAdapter {
     private List<PointLog> list;
     private Context context;
-    private final ProgressBar spinner;
     private Singleton singleton;
 
-    public PointLogAdapter(List<PointLog> logs, Context c, ProgressBar s){
+    public PointLogAdapter(List<PointLog> logs, Context c){
         list = logs;
         context = c;
-        spinner = s;
         singleton = Singleton.getInstance(context);
     }
 

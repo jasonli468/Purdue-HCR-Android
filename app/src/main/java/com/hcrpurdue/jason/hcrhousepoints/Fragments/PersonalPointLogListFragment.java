@@ -1,8 +1,5 @@
 package com.hcrpurdue.jason.hcrhousepoints.Fragments;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.ListFragment;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,28 +8,28 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.ListFragment;
 
+import com.hcrpurdue.jason.hcrhousepoints.ListAdapters.PointLogAdapter;
+import com.hcrpurdue.jason.hcrhousepoints.Models.PointLog;
 import com.hcrpurdue.jason.hcrhousepoints.R;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.Singleton;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.hcrpurdue.jason.hcrhousepoints.Models.PointLog;
-import com.hcrpurdue.jason.hcrhousepoints.ListAdapters.PointLogAdapter;
-import com.hcrpurdue.jason.hcrhousepoints.Utils.Singleton;
-import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.SingletonInterface;
+public class PersonalPointLogListFragment extends ListFragment implements SearchView.OnQueryTextListener, MenuItem.OnActionExpandListener {
 
-public class HousePointHistoryFragment extends ListFragment implements SearchView.OnQueryTextListener, MenuItem.OnActionExpandListener {
-
-    List<PointLog> allHouseLogs;
+    List<PointLog> logs;
     private PointLogAdapter adapter;
     private Singleton singleton;
-    private ProgressBar progressBar;
+    private TextView emptyMessageTextView;
+    private ListView listView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,10 +42,7 @@ public class HousePointHistoryFragment extends ListFragment implements SearchVie
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         AppCompatActivity activity = (AppCompatActivity) Objects.requireNonNull(getActivity());
-        progressBar = activity.findViewById(R.id.navigationProgressBar);
-        progressBar.setVisibility(View.VISIBLE);
-
-        Objects.requireNonNull(activity.getSupportActionBar()).setTitle("House Point History");
+        Objects.requireNonNull(activity.getSupportActionBar()).setTitle("My Points");
 
     }
 
@@ -59,26 +53,20 @@ public class HousePointHistoryFragment extends ListFragment implements SearchVie
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_house_submission_history_list, container, false);
-        ListView listView = (ListView) layout.findViewById(android.R.id.list);
-        TextView emptyTextView = (TextView) layout.findViewById(android.R.id.empty);
+        View layout = inflater.inflate(R.layout.fragment_point_type_list, container, false);
+        listView = layout.findViewById(android.R.id.list);
+        listView.addFooterView(new View(getContext()), null, true);
+        emptyMessageTextView = layout.findViewById(android.R.id.empty);
 
-        listView.setEmptyView(emptyTextView);
-        singleton.getAllHousePoints(new SingletonInterface() {
-            @Override
-            public void onGetAllHousePointsSuccess(List<PointLog> houseLogs) {
-                allHouseLogs = houseLogs;
-                createAdapter(allHouseLogs);
-                progressBar.setVisibility(View.GONE);
-            }
-        });
-
+        listView.setEmptyView(emptyMessageTextView);
+        logs = singleton.getPersonalPointLogs();
+        createAdapter(logs);
         return layout;
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.house_submission_history_list, menu);
+        inflater.inflate(R.menu.point_type_list_menu, menu);
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
         searchView.setOnQueryTextListener(this);
@@ -101,12 +89,9 @@ public class HousePointHistoryFragment extends ListFragment implements SearchVie
             return false;
         }
 
-        List<PointLog> filteredValues = new ArrayList<PointLog>(allHouseLogs);
-        for (PointLog log : allHouseLogs) {
-            if (!(log.getResidentFirstName().toLowerCase().contains(newText.toLowerCase()) ||
-                    log.getResidentLastName().toLowerCase().contains(newText.toLowerCase()) ||
-                    log.getPointDescription().toLowerCase().contains(newText.toLowerCase()) ||
-                    log.getPointType().getPointDescription().toLowerCase().contains(newText.toLowerCase()))) {
+        List<PointLog> filteredValues = new ArrayList<>(logs);
+        for (PointLog log : logs) {
+            if (!log.getPointDescription().contains(newText)) {
                 filteredValues.remove(log);
             }
         }
@@ -117,7 +102,7 @@ public class HousePointHistoryFragment extends ListFragment implements SearchVie
     }
 
     public void resetSearch() {
-        createAdapter(allHouseLogs);
+        createAdapter(logs);
     }
 
     @Override
@@ -130,12 +115,9 @@ public class HousePointHistoryFragment extends ListFragment implements SearchVie
         return true;
     }
 
-    public interface OnItem1SelectedListener {
-        void OnItem1SelectedListener(String item);
-    }
-
     private void createAdapter(List<PointLog> logs){
         adapter = new PointLogAdapter(logs,getContext());
         setListAdapter(adapter);
     }
+
 }
