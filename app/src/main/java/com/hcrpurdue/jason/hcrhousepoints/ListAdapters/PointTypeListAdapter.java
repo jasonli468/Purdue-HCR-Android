@@ -62,7 +62,7 @@ public class PointTypeListAdapter extends BaseAdapter implements ListAdapter {
 
         //Handle TextView and display string from your list
         TextView typeTextView = view.findViewById(R.id.type_description_text_view);
-        typeTextView.setText(type.getPointDescription());
+        typeTextView.setText(type.getName());
 
 
 

@@ -60,7 +60,8 @@ public class SubmitPointsFragment extends Fragment {
         pointTypeDescriptionTextView = view.findViewById(R.id.submit_point_type_description_text_view);
         descriptionEditText = view.findViewById(R.id.description_edit_text);
 
-        pointTypeTextView.setText(pointType.getPointDescription());
+        pointTypeTextView.setText(pointType.getName());
+        pointTypeDescriptionTextView.setText(pointType.getPointDescription());
         submitPointButton = view.findViewById(R.id.submit_point_button);
         submitPointButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,6 +96,7 @@ public class SubmitPointsFragment extends Fragment {
                     new SingletonInterface() {
                         @Override
                         public void onSuccess() {
+                            progressBar.setVisibility(View.INVISIBLE);
                             ((NavigationDrawer) activity).animateSuccess();
                             getFragmentManager().popBackStackImmediate();
                         }
@@ -113,7 +115,7 @@ public class SubmitPointsFragment extends Fragment {
             pointType = (PointType) bundle.getSerializable("POINTTYPE");
         }
         if(pointType == null){
-            pointType = new PointType(0,"Fake",true,1000,true,3);
+            pointType = new PointType(0,"Fake","Fake Description",true,1000,true,3);
         }
     }
 }

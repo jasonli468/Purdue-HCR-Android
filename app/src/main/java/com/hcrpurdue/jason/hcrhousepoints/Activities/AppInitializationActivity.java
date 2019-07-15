@@ -102,7 +102,7 @@ public class AppInitializationActivity extends AppCompatActivity {
 
     private void initializeCompetitionData(){
         try {
-            singleton.getPointTypes(new SingletonInterface() {
+            singleton.getUpdatedPointTypes(new SingletonInterface() {
 
                 public void onPointTypeComplete(List<PointType> data) {
                     singleton.getSystemPreferences(new SingletonInterface() {

@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,7 +34,6 @@ public class PointTypeListFragment  extends ListFragment implements SearchView.O
     List<PointType> enabledTypes;
     private PointTypeListAdapter adapter;
     private Singleton singleton;
-    private ProgressBar progressBar;
     private TextView emptyMessageTextView;
     private ListView listView;
 
@@ -50,11 +48,14 @@ public class PointTypeListFragment  extends ListFragment implements SearchView.O
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         AppCompatActivity activity = (AppCompatActivity) Objects.requireNonNull(getActivity());
-        progressBar = activity.findViewById(R.id.navigationProgressBar);
-        progressBar.setVisibility(View.VISIBLE);
-
         Objects.requireNonNull(activity.getSupportActionBar()).setTitle("Submit Points");
 
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        getUpdatedPointTypes();
     }
 
     @Override
@@ -75,7 +76,7 @@ public class PointTypeListFragment  extends ListFragment implements SearchView.O
         emptyMessageTextView = layout.findViewById(android.R.id.empty);
 
         listView.setEmptyView(emptyMessageTextView);
-        getPointTypes();
+        enabledTypes = singleton.getCachedPointTypes();
         return layout;
     }
 
@@ -136,9 +137,9 @@ public class PointTypeListFragment  extends ListFragment implements SearchView.O
     }
 
 
-    private void getPointTypes() {
+    private void getUpdatedPointTypes() {
         try {
-            singleton.getPointTypes(new SingletonInterface() {
+            singleton.getUpdatedPointTypes(new SingletonInterface() {
                 public void onPointTypeComplete(List<PointType> data) {
                     storeEnabledTypes(data);
                     singleton.getSystemPreferences(new SingletonInterface() {
@@ -159,7 +160,6 @@ public class PointTypeListFragment  extends ListFragment implements SearchView.O
                                 listView.setVisibility(View.VISIBLE);
                                 emptyMessageTextView.setVisibility(View.GONE);
                             }
-                            progressBar.setVisibility(View.INVISIBLE);
                             createAdapter(enabledTypes);
                         }
                     });
