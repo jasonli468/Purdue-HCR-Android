@@ -72,7 +72,7 @@
                 android:id="@+id/user_log_history_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="View My Points"
+                android:text="@string/view_points"
                 app:layout_constraintTop_toBottomOf="@id/statistics_user_points"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

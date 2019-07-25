@@ -25,6 +25,7 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
+import com.hcrpurdue.jason.hcrhousepoints.Models.PointLog;
 import com.hcrpurdue.jason.hcrhousepoints.R;
 
 import java.util.ArrayList;
@@ -35,16 +36,20 @@ import java.util.Objects;
 
 import com.hcrpurdue.jason.hcrhousepoints.Models.House;
 import com.hcrpurdue.jason.hcrhousepoints.Models.Reward;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.FirebaseListenerUtil;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.Singleton;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.ListenerCallbackInterface;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.SingletonInterface;
 
-public class HouseOverviewFragment extends Fragment {
+public class HouseOverviewFragment extends Fragment implements ListenerCallbackInterface {
     static private Singleton singleton;
     private Context context;
     private Resources resources;
     private String packageName;
     private ProgressBar progressBar;
     private Button viewMyPointsButton;
+    private FirebaseListenerUtil flu;
+    private final String PERSONAL_LOGS_CALLBACK_KEY = "POINT_LOG_DETAILS";
 
     @Override
     public void onAttach(Context context) {
@@ -56,7 +61,20 @@ public class HouseOverviewFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         singleton = Singleton.getInstance(getContext());
+        flu = FirebaseListenerUtil.getInstance(context);
         resources = getResources();
+        flu.getUserPointLogListener().addCallback(PERSONAL_LOGS_CALLBACK_KEY, new ListenerCallbackInterface() {
+            @Override
+            public void onUpdate() {
+                refreshPointsButtonLabel();
+            }
+        });
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        flu.getUserPointLogListener().removeCallback(PERSONAL_LOGS_CALLBACK_KEY);
     }
 
     @Override
@@ -106,7 +124,7 @@ public class HouseOverviewFragment extends Fragment {
         chart.getLegend().setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
         chart.setAutoScaleMinMaxEnabled(true);
         chart.invalidate();
-
+        refreshPointsButtonLabel();
         return view;
     }
 
@@ -189,5 +207,18 @@ public class HouseOverviewFragment extends Fragment {
                     swipeRefreshLayout.setRefreshing(false);
             }
         });
+    }
+
+    /**
+     * On personal Point log update, check if there are any new notifications
+     */
+    private void refreshPointsButtonLabel(){
+        for(PointLog log: singleton.getPersonalPointLogs()){
+            if(log.getResidentNotifications() > 0){
+                viewMyPointsButton.setText(R.string.view_points_alert);
+                return;
+            }
+        }
+        viewMyPointsButton.setText(R.string.view_points);
     }
 }

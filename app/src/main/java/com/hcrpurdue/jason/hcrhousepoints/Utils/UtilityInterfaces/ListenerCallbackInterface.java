@@ -1,5 +1,5 @@
 package com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces;
 
 public interface ListenerCallbackInterface {
-    default void handleUserPointLogUpdate(){}
+    default void onUpdate(){}
 }

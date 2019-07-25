@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.ListFragment;
@@ -17,19 +18,24 @@ import androidx.fragment.app.ListFragment;
 import com.hcrpurdue.jason.hcrhousepoints.ListAdapters.PointLogAdapter;
 import com.hcrpurdue.jason.hcrhousepoints.Models.PointLog;
 import com.hcrpurdue.jason.hcrhousepoints.R;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.FirebaseListenerUtil;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.Singleton;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.ListenerCallbackInterface;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class PersonalPointLogListFragment extends ListFragment implements SearchView.OnQueryTextListener, MenuItem.OnActionExpandListener {
+public class PersonalPointLogListFragment extends ListFragment implements SearchView.OnQueryTextListener, MenuItem.OnActionExpandListener{
 
     List<PointLog> logs;
     private PointLogAdapter adapter;
     private Singleton singleton;
+    private FirebaseListenerUtil flu;
     private TextView emptyMessageTextView;
     private ListView listView;
+    private Boolean isSearching;
+    private final String CALLBACK_KEY = "PERSONAL_POINT_LOGS";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,12 +49,14 @@ public class PersonalPointLogListFragment extends ListFragment implements Search
         super.onActivityCreated(savedInstanceState);
         AppCompatActivity activity = (AppCompatActivity) Objects.requireNonNull(getActivity());
         Objects.requireNonNull(activity.getSupportActionBar()).setTitle("My Points");
+        isSearching = false;
 
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        flu.getUserPointLogListener().removeCallback(CALLBACK_KEY);
     }
 
     @Override
@@ -61,6 +69,13 @@ public class PersonalPointLogListFragment extends ListFragment implements Search
         listView.setEmptyView(emptyMessageTextView);
         logs = singleton.getPersonalPointLogs();
         createAdapter(logs);
+        flu = FirebaseListenerUtil.getInstance(getContext());
+        flu.getUserPointLogListener().addCallback(CALLBACK_KEY, new ListenerCallbackInterface() {
+            @Override
+            public void onUpdate() {
+                handleUpdate();
+            }
+        });
         return layout;
     }
 
@@ -95,13 +110,14 @@ public class PersonalPointLogListFragment extends ListFragment implements Search
                 filteredValues.remove(log);
             }
         }
-
+        isSearching = true;
         createAdapter(filteredValues);
 
         return false;
     }
 
     public void resetSearch() {
+        isSearching = false;
         createAdapter(logs);
     }
 
@@ -120,4 +136,12 @@ public class PersonalPointLogListFragment extends ListFragment implements Search
         setListAdapter(adapter);
     }
 
+
+    public void handleUpdate() {
+        Toast.makeText(getContext(),"Update to point Log", Toast.LENGTH_LONG).show();
+        logs = singleton.getPersonalPointLogs();
+        if(!isSearching){
+            createAdapter(logs);
+        }
+    }
 }
