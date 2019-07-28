@@ -2,8 +2,6 @@ package com.hcrpurdue.jason.hcrhousepoints.Models;
 
 import android.content.Context;
 
-import com.google.firebase.firestore.DocumentReference;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.hcrpurdue.jason.hcrhousepoints.Utils.Singleton;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.CacheManager;
 
 public class PointLog implements Serializable {
 
@@ -102,7 +100,7 @@ public class PointLog implements Serializable {
      *
      * @param id       - ID of the point in Firebase
      * @param document - Dictionary returned from Firebase request
-     * @param context  - Context of current activity. Used to get the Point Types from the singleton
+     * @param context  - Context of current activity. Used to get the Point Types from the cacheManager
      */
     public PointLog(String id, Map<String, Object> document, Context context) {
 
@@ -137,7 +135,7 @@ public class PointLog implements Serializable {
             this.wasHandled = true;
         }
 
-        this.type = Singleton.getInstance(context).getPointTypeWithID(Math.abs(idValue));
+        this.type = CacheManager.getInstance(context).getPointTypeWithID(Math.abs(idValue));
 
         if (floorID.equals("Shreve")) {
             residentFirstName = SHREVE_RESIDENT + residentFirstName;
@@ -214,7 +212,7 @@ public class PointLog implements Serializable {
             if (preapproved) {
                 this.approvedBy = "Preapproved";
             } else {
-                this.approvedBy = Singleton.getInstance(context).getName();
+                this.approvedBy = CacheManager.getInstance(context).getName();
             }
 
             this.approvedOn = new Date();
@@ -224,7 +222,7 @@ public class PointLog implements Serializable {
             //Rejecting the point
             if(!wasRejected()) {
                 this.pointDescription = REJECTED_STRING + pointDescription;
-                this.approvedBy = Singleton.getInstance(context).getName();
+                this.approvedBy = CacheManager.getInstance(context).getName();
                 this.approvedOn = new Date();
             }
         }

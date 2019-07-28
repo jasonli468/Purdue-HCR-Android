@@ -25,12 +25,12 @@ import java.util.Objects;
 
 import com.hcrpurdue.jason.hcrhousepoints.Models.Link;
 import com.hcrpurdue.jason.hcrhousepoints.ListAdapters.QrCodeListAdapter;
-import com.hcrpurdue.jason.hcrhousepoints.Utils.Singleton;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.CacheManager;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.ListenerCallbackInterface;
-import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.SingletonInterface;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.CacheManagementInterface;
 
 public class QRCodeListFragment extends Fragment implements ListenerCallbackInterface {
-    static private Singleton singleton;
+    static private CacheManager cacheManager;
     private Context context;
     private ProgressBar progressBar;
     private ListView qrCodeListView;
@@ -46,14 +46,14 @@ public class QRCodeListFragment extends Fragment implements ListenerCallbackInte
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        singleton = Singleton.getInstance(context);
+        cacheManager = CacheManager.getInstance(context);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_qr_code_list, container, false);
-        singleton.getCachedData();
+        cacheManager.getCachedData();
         qrCodeListView = view.findViewById(R.id.qr_code_list);
         houseDisabledTextView = view.findViewById(R.id.qr_code_list_house_disabled_message);
         qrCodeCreateFab = (FloatingActionButton) view.findViewById(R.id.qr_code_create_fab);
@@ -86,11 +86,11 @@ public class QRCodeListFragment extends Fragment implements ListenerCallbackInte
         AppCompatActivity activity = (AppCompatActivity) Objects.requireNonNull(getActivity());
         progressBar = activity.findViewById(R.id.navigationProgressBar);
 
-        boolean isHouseEnabled = singleton.getCachedSystemPreferences().isHouseEnabled();
+        boolean isHouseEnabled = cacheManager.getCachedSystemPreferences().isHouseEnabled();
 
         if(!isHouseEnabled) {
             qrCodeListView.setVisibility(View.GONE);
-            houseDisabledTextView.setText(singleton.getCachedSystemPreferences().getHouseIsEnabledMsg());
+            houseDisabledTextView.setText(cacheManager.getCachedSystemPreferences().getHouseIsEnabledMsg());
             houseDisabledTextView.setVisibility(View.VISIBLE);
 
         }
@@ -109,7 +109,7 @@ public class QRCodeListFragment extends Fragment implements ListenerCallbackInte
 
     private void getQRCodesFromServer(SwipeRefreshLayout swipeRefresh) {
 
-        singleton.getUserCreatedQRCodes(true, new SingletonInterface() {
+        cacheManager.getUserCreatedQRCodes(true, new CacheManagementInterface() {
             @Override
             public void onError(Exception e, Context context) {
                 Toast.makeText(context, "Failed to retrieve QR Codes.", Toast.LENGTH_LONG).show();

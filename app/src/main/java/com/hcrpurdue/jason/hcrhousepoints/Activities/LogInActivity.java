@@ -1,3 +1,8 @@
+/**
+ *  LogInActivity- will display the log in screen. Here there are options for creating an account
+ *      And launching the forgot password process
+ */
+
 package com.hcrpurdue.jason.hcrhousepoints.Activities;
 
 import android.content.Context;
@@ -19,29 +24,33 @@ import java.util.Map;
 
 import com.hcrpurdue.jason.hcrhousepoints.R;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.ForgotPasswordDialog;
-import com.hcrpurdue.jason.hcrhousepoints.Utils.Singleton;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.CacheManager;
 
 public class LogInActivity extends AppCompatActivity {
     private FirebaseAuth auth;
-    private Map<String, Pair<String, String>> floorCodes;
-    private Singleton singleton;
     private EditText emailEditText;
     private EditText passwordEditText;
     private Button logInButton;
     private Button createAccountButton;
 
-
+    /**
+     * When the activity is created, setup the view and initialize authentication
+     * @param savedInstanceState
+     */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_log_in);
         auth = FirebaseAuth.getInstance();
-        singleton = Singleton.getInstance(getApplicationContext());
         initializeViews();
         handleLogOutIfLoggedIn();
     }
 
+    /**
+     * make sure the user is loggedout
+     */
     private void handleLogOutIfLoggedIn(){
+        //this method will sign the user out if logged in and do nothing if already logged out
         auth.signOut();
     }
 
@@ -62,6 +71,7 @@ public class LogInActivity extends AppCompatActivity {
      */
     public void signIn(View view) {
         logInButton.setEnabled(false);
+        //Make sure the info is valid
         if(!signInInvalid(emailEditText,passwordEditText)){
 
             String email = emailEditText.getText().toString();
@@ -70,12 +80,13 @@ public class LogInActivity extends AppCompatActivity {
             auth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
                         if (task.isSuccessful()) {
+                            //If the sign in is successful, return to the initialization activity
                             launchInitializationActivity();
                         } else {
+                            //If it fails, toast error and reenable login button
                             Toast.makeText(this, "Authentication failed. Please verify your email and password and try again.",
                                     Toast.LENGTH_LONG).show();
                             logInButton.setEnabled(true);
-                            //findViewById(R.id.authenticationProgressBar).setVisibility(View.GONE);
                         }
                     });
         }
@@ -136,7 +147,10 @@ public class LogInActivity extends AppCompatActivity {
         createAccountButton.setEnabled(true);
     }
 
-
+    /**
+     * display the password reset dialog
+     * @param view
+     */
     public void openPasswordResetDialog(View view) {
         ForgotPasswordDialog forgotPasswordDialog = new ForgotPasswordDialog(this);
         forgotPasswordDialog.show();

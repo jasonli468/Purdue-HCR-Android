@@ -10,7 +10,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
@@ -26,17 +25,17 @@ import java.util.List;
 import java.util.Objects;
 
 import com.hcrpurdue.jason.hcrhousepoints.Models.PointLog;
-import com.hcrpurdue.jason.hcrhousepoints.Utils.Singleton;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.CacheManager;
 
 public class PointLogAdapter extends BaseAdapter  implements ListAdapter {
     private List<PointLog> list;
     private Context context;
-    private Singleton singleton;
+    private CacheManager cacheManager;
 
     public PointLogAdapter(List<PointLog> logs, Context c){
         list = logs;
         context = c;
-        singleton = Singleton.getInstance(context);
+        cacheManager = CacheManager.getInstance(context);
     }
 
     @Override
@@ -73,10 +72,10 @@ public class PointLogAdapter extends BaseAdapter  implements ListAdapter {
         TextView dateView = view.findViewById(R.id.date_text);
 
         LinearLayout alertLayout = view.findViewById(R.id.status_symbol_column);
-        if(singleton.getPermissionLevel() > 0 && log.getRhpNotifications() > 0){
+        if(cacheManager.getPermissionLevel() > 0 && log.getRhpNotifications() > 0){
             alertLayout.setVisibility(View.VISIBLE);
         }
-        else if(singleton.getPermissionLevel() == 0 && log.getResidentNotifications() > 0){
+        else if(cacheManager.getPermissionLevel() == 0 && log.getResidentNotifications() > 0){
             alertLayout.setVisibility(View.VISIBLE);
         }
         else{
@@ -89,7 +88,7 @@ public class PointLogAdapter extends BaseAdapter  implements ListAdapter {
         lastNameLabel.setText(log.getResidentLastName());
         pointDescriptionLabel.setText(log.getPointDescription());
 
-        int drawableID = context.getResources().getIdentifier(singleton.getHouse().toLowerCase(), "drawable", context.getPackageName());
+        int drawableID = context.getResources().getIdentifier(cacheManager.getHouse().toLowerCase(), "drawable", context.getPackageName());
         houseView.setImageResource(drawableID);
 
         view.setOnClickListener(new View.OnClickListener() {

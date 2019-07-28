@@ -30,7 +30,7 @@ public class FirebaseListenerUtil {
 
     private Context context;
     protected FirebaseFirestore db = FirebaseFirestore.getInstance();
-    protected Singleton singleton;
+    protected CacheManager cacheManager;
     static FirebaseListenerUtil fluListener;
     private FirebaseCollectionListener userPointLogListener;
     private FirebaseCollectionListener rhpNotificationListener;
@@ -49,7 +49,7 @@ public class FirebaseListenerUtil {
 
     public FirebaseListenerUtil(Context c){
         context = c;
-        singleton = Singleton.getInstance(context);
+        cacheManager = CacheManager.getInstance(context);
         createPersistantListeners();
     }
 
@@ -58,7 +58,7 @@ public class FirebaseListenerUtil {
      */
     private void createPersistantListeners(){
         createUserPointLogListener();
-        if(singleton.getPermissionLevel() == 1){
+        if(cacheManager.getPermissionLevel() == 1){
             //Create RHP only listeners
             createRHPNotificationListener();
         }
@@ -71,9 +71,9 @@ public class FirebaseListenerUtil {
      */
     private void createUserPointLogListener(){
         Query userPointLogQuery = db.collection("House")
-                .document(singleton.getHouse())
+                .document(cacheManager.getHouse())
                 .collection("Points")
-                .whereEqualTo("ResidentId",singleton.getUserId());
+                .whereEqualTo("ResidentId", cacheManager.getUserId());
         SnapshotInterface si = new SnapshotInterface() {
             @Override
             public void handleQuerySnapshots(QuerySnapshot queryDocumentSnapshots, Exception e) {
@@ -82,7 +82,7 @@ public class FirebaseListenerUtil {
                     for(DocumentSnapshot doc : queryDocumentSnapshots){
                         userLogs.add(new PointLog(doc.getId(),doc.getData(),context));
                     }
-                    singleton.setPersonalPointLogs(userLogs);
+                    cacheManager.setPersonalPointLogs(userLogs);
                 }
             }
         };
@@ -97,13 +97,13 @@ public class FirebaseListenerUtil {
 
     private void createRHPNotificationListener(){
         Query rhpNotificationQuery = db.collection("House")
-                .document(singleton.getHouse())
+                .document(cacheManager.getHouse())
                 .collection("Points")
                 .whereGreaterThan("RHPNotifications", 0);
         SnapshotInterface si = new SnapshotInterface() {
             @Override
             public void handleQuerySnapshots(QuerySnapshot queryDocumentSnapshots, Exception e) {
-                singleton.setNotificationCount(queryDocumentSnapshots.size());
+                cacheManager.setNotificationCount(queryDocumentSnapshots.size());
             }
         };
         rhpNotificationListener = new FirebaseCollectionListener(context,rhpNotificationQuery,si);
@@ -125,7 +125,7 @@ public class FirebaseListenerUtil {
             pointLogListener = null;
         }
         DocumentReference documentReference = db.collection("House")
-                .document(singleton.getHouse())
+                .document(cacheManager.getHouse())
                 .collection("Points")
                 .document(log.getLogID());
         SnapshotInterface si = new SnapshotInterface() {

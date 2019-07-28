@@ -1,7 +1,6 @@
 package com.hcrpurdue.jason.hcrhousepoints.Fragments;
 
 import android.content.Context;
-import android.graphics.Point;
 import android.os.Bundle;
 
 import com.hcrpurdue.jason.hcrhousepoints.Models.PointLogMessage;
@@ -18,9 +17,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hcrpurdue.jason.hcrhousepoints.R;
@@ -31,13 +28,13 @@ import java.util.Objects;
 import com.hcrpurdue.jason.hcrhousepoints.Models.PointLog;
 
 import com.hcrpurdue.jason.hcrhousepoints.ListAdapters.PointLogMessageAdapter;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.CacheManager;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.FirebaseListenerUtil;
-import com.hcrpurdue.jason.hcrhousepoints.Utils.Singleton;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.CacheManagementInterface;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.ListenerCallbackInterface;
-import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.SingletonInterface;
 
 public class PointLogDetailsFragment extends Fragment implements ListenerCallbackInterface {
-    static private Singleton singleton;
+    static private CacheManager cacheManager;
     private Context context;
     private ProgressBar progressBar;
     private PointLog log;
@@ -64,7 +61,7 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
         super.onStart();
 
         //Handle Updating
-        singleton.handlePointLogUpdates(log, new SingletonInterface() {
+        cacheManager.handlePointLogUpdates(log, new CacheManagementInterface() {
             @Override
             public void onError(Exception e, Context context) {
                 Toast.makeText(context,"Failed to update messages.",Toast.LENGTH_LONG).show();
@@ -84,13 +81,13 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
-        singleton = Singleton.getInstance(context);
+        cacheManager = CacheManager.getInstance(context);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        singleton = Singleton.getInstance(context);
+        cacheManager = CacheManager.getInstance(context);
     }
 
     @Override
@@ -113,7 +110,7 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
         Objects.requireNonNull(activity.getSupportActionBar()).setTitle("Point Details");
 
         // If user is an RHP
-        if(Singleton.getInstance(context).getPermissionLevel() == 1){
+        if(CacheManager.getInstance(context).getPermissionLevel() == 1){
             if(log.wasHandled()){
                 changeStatusButton.setVisibility(View.VISIBLE);
             }
@@ -125,7 +122,7 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
 
         flu = FirebaseListenerUtil.getInstance(getContext());
         //If Log belongs to this user, update it with UserPointLogListener
-        if(log.getResidentId().equals(singleton.getUserId())){
+        if(log.getResidentId().equals(cacheManager.getUserId())){
             flu.getUserPointLogListener().addCallback(CALLBACK_KEY, new ListenerCallbackInterface() {
                 @Override
                 public void onUpdate() {
@@ -174,7 +171,7 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
                     return;
                 }
                 messageTextField.setText("");
-                singleton.postMessageToPointLog(log, message, new SingletonInterface() {
+                cacheManager.postMessageToPointLog(log, message, new CacheManagementInterface() {
                     @Override
                     public void onSuccess() {
                         progressBar.setVisibility(View.INVISIBLE);
@@ -192,7 +189,7 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
             @Override
             public void onClick(View view) {
                 progressBar.setVisibility(View.VISIBLE);
-                singleton.handlePointLog(log, false,false, new SingletonInterface() {
+                cacheManager.handlePointLog(log, false,false, new CacheManagementInterface() {
                     @Override
                     public void onSuccess() {
                         Toast.makeText(context,"Success",Toast.LENGTH_LONG).show();
@@ -214,7 +211,7 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
             @Override
             public void onClick(View view) {
                 progressBar.setVisibility(View.VISIBLE);
-                singleton.handlePointLog(log, true,false, new SingletonInterface() {
+                cacheManager.handlePointLog(log, true,false, new CacheManagementInterface() {
                     @Override
                     public void onSuccess() {
                         Toast.makeText(context,"Success",Toast.LENGTH_LONG).show();
@@ -236,7 +233,7 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
             @Override
             public void onClick(View view) {
                 progressBar.setVisibility(View.VISIBLE);
-                singleton.handlePointLog(log, log.wasRejected(),true, new SingletonInterface() {
+                cacheManager.handlePointLog(log, log.wasRejected(),true, new CacheManagementInterface() {
                     @Override
                     public void onSuccess() {
                         Toast.makeText(context,"Success",Toast.LENGTH_LONG).show();
@@ -271,14 +268,14 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
             flu.getPointLogListener().killListener();
         }
         //Reset the notification count when the user leaves.
-        singleton.resetPointLogNotificationCount(log,(log.getResidentId().equals(singleton.getUserId())));
+        cacheManager.resetPointLogNotificationCount(log,(log.getResidentId().equals(cacheManager.getUserId())));
     }
 
     /**
      * If the displayed point log belongs to this user, handle updates here
      */
     public void handleUserLogUpdate() {
-        List<PointLog> logs = singleton.getPersonalPointLogs();
+        List<PointLog> logs = cacheManager.getPersonalPointLogs();
         for(PointLog pointLog: logs){
             //If the log equals to the displayed logs ID, then update the displayed Log
             if(pointLog.getLogID().equals(log.getLogID())){

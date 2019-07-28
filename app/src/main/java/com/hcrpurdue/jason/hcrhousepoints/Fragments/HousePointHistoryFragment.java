@@ -24,21 +24,21 @@ import java.util.Objects;
 
 import com.hcrpurdue.jason.hcrhousepoints.Models.PointLog;
 import com.hcrpurdue.jason.hcrhousepoints.ListAdapters.PointLogAdapter;
-import com.hcrpurdue.jason.hcrhousepoints.Utils.Singleton;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.CacheManager;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.CacheManagementInterface;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.ListenerCallbackInterface;
-import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.SingletonInterface;
 
 public class HousePointHistoryFragment extends ListFragment implements SearchView.OnQueryTextListener, MenuItem.OnActionExpandListener, ListenerCallbackInterface {
 
     List<PointLog> allHouseLogs;
     private PointLogAdapter adapter;
-    private Singleton singleton;
+    private CacheManager cacheManager;
     private ProgressBar progressBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        singleton = Singleton.getInstance(getContext());
+        cacheManager = CacheManager.getInstance(getContext());
         setHasOptionsMenu(true);
     }
 
@@ -65,7 +65,7 @@ public class HousePointHistoryFragment extends ListFragment implements SearchVie
         TextView emptyTextView = (TextView) layout.findViewById(android.R.id.empty);
 
         listView.setEmptyView(emptyTextView);
-        singleton.getAllHousePoints(new SingletonInterface() {
+        cacheManager.getAllHousePoints(new CacheManagementInterface() {
             @Override
             public void onGetAllHousePointsSuccess(List<PointLog> houseLogs) {
                 allHouseLogs = houseLogs;
@@ -129,10 +129,6 @@ public class HousePointHistoryFragment extends ListFragment implements SearchVie
     @Override
     public boolean onMenuItemActionCollapse(MenuItem item) {
         return true;
-    }
-
-    public interface OnItem1SelectedListener {
-        void OnItem1SelectedListener(String item);
     }
 
     private void createAdapter(List<PointLog> logs){

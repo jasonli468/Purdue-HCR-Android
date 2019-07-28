@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import com.hcrpurdue.jason.hcrhousepoints.Models.PointLog;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.CacheManager;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.FirebaseUtil;
-import com.hcrpurdue.jason.hcrhousepoints.Utils.Singleton;
-import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.SingletonInterface;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.CacheManagementInterface;
 
 public class ApprovePointListAdapter extends BaseAdapter implements ListAdapter {
     private FirebaseUtil fbutil = new FirebaseUtil();
@@ -101,7 +101,7 @@ public class ApprovePointListAdapter extends BaseAdapter implements ListAdapter 
 
         approveBtn.setOnClickListener(v -> {
             spinner.setVisibility(View.VISIBLE);
-            Singleton.getInstance(context).handlePointLog(log, true,false, new SingletonInterface() {
+            CacheManager.getInstance(context).handlePointLog(log, true,false, new CacheManagementInterface() {
                 @Override
                 public void onSuccess() {
                     list.remove(position);
@@ -112,7 +112,7 @@ public class ApprovePointListAdapter extends BaseAdapter implements ListAdapter 
         });
         denyBtn.setOnClickListener(v -> {
             spinner.setVisibility(View.VISIBLE);
-            Singleton.getInstance(context).handlePointLog(log, false,false, new SingletonInterface() {
+            CacheManager.getInstance(context).handlePointLog(log, false,false, new CacheManagementInterface() {
                 @Override
                 public void onSuccess() {
                     list.remove(position);

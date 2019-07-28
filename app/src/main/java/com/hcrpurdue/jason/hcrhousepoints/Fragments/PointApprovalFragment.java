@@ -26,13 +26,12 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import com.hcrpurdue.jason.hcrhousepoints.Models.PointLog;
-import com.hcrpurdue.jason.hcrhousepoints.ListAdapters.ApprovePointListAdapter;
-import com.hcrpurdue.jason.hcrhousepoints.Utils.Singleton;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.CacheManager;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.ListenerCallbackInterface;
-import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.SingletonInterface;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.CacheManagementInterface;
 
 public class PointApprovalFragment extends Fragment implements ListenerCallbackInterface {
-    static private Singleton singleton;
+    static private CacheManager cacheManager;
     private Context context;
     private ProgressBar progressBar;
     private ListView approveList;
@@ -47,14 +46,14 @@ public class PointApprovalFragment extends Fragment implements ListenerCallbackI
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        singleton = Singleton.getInstance(context);
+        cacheManager = CacheManager.getInstance(context);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_point_approval, container, false);
-        singleton.getCachedData();
+        cacheManager.getCachedData();
         approveList = view.findViewById(R.id.approve_list);
         houseDisabledTextView = view.findViewById(R.id.houseDisabledTextView);
         SwipeRefreshLayout swipeRefresh = view.findViewById(R.id.approve_list_swipe_refresh);
@@ -68,11 +67,11 @@ public class PointApprovalFragment extends Fragment implements ListenerCallbackI
         AppCompatActivity activity = (AppCompatActivity) Objects.requireNonNull(getActivity());
         progressBar = activity.findViewById(R.id.navigationProgressBar);
 
-        boolean isHouseEnabled = singleton.getCachedSystemPreferences().isHouseEnabled();
+        boolean isHouseEnabled = cacheManager.getCachedSystemPreferences().isHouseEnabled();
 
         if (!isHouseEnabled) {
             approveList.setVisibility(View.GONE);
-            houseDisabledTextView.setText(singleton.getCachedSystemPreferences().getHouseIsEnabledMsg());
+            houseDisabledTextView.setText(cacheManager.getCachedSystemPreferences().getHouseIsEnabledMsg());
             houseDisabledTextView.setVisibility(View.VISIBLE);
 
         } else {
@@ -87,7 +86,7 @@ public class PointApprovalFragment extends Fragment implements ListenerCallbackI
     }
 
     private void getUnconfirmedPoints(SwipeRefreshLayout swipeRefresh) {
-        singleton.getUnconfirmedPoints(new SingletonInterface() {
+        cacheManager.getUnconfirmedPoints(new CacheManagementInterface() {
             @Override
             public void onUnconfirmedPointsSuccess(ArrayList<PointLog> logs) {
                 PointLogAdapter adapter = new PointLogAdapter(logs,context);

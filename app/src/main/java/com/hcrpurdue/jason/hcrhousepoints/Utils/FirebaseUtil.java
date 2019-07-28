@@ -23,6 +23,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 import com.hcrpurdue.jason.hcrhousepoints.Models.House;
+import com.hcrpurdue.jason.hcrhousepoints.Models.HouseCode;
 import com.hcrpurdue.jason.hcrhousepoints.Models.Link;
 import com.hcrpurdue.jason.hcrhousepoints.Models.PointLog;
 import com.hcrpurdue.jason.hcrhousepoints.Models.PointLogMessage;
@@ -54,10 +56,13 @@ public class FirebaseUtil {
     public static String ROOT_REWARDS_KEY = "Rewards";
 
     public static String ROOT_SYSTEM_PREFERENCES_KEY = "SystemPreferences";
+    public static String ROOT_SYSTEM_PREFERENCES_PREFERENCE_DOCUMENT_KEY = "Preferences";
 
     public static String ROOT_POINT_TYPES_KEY = "PointTypes";
 
     public static String ROOT_LINKS_KEY = "Links";
+
+    public static String ROOT_CODES_KEY = "Codes";
 
 
 
@@ -338,7 +343,7 @@ public class FirebaseUtil {
      * @param fui
      */
     public void getPointTypes(final FirebaseUtilInterface fui) {
-        db.collection("PointTypes").get().addOnCompleteListener(task -> {
+        db.collection(ROOT_POINT_TYPES_KEY).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<PointType> pointTypeList = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task.getResult()) {
@@ -426,7 +431,7 @@ public class FirebaseUtil {
      * @param fui firebaseutilInterface, implement onError, and onGetLinkWithIdSuccess
      */
     public void getLinkWithId(String id, final FirebaseUtilInterface fui) {
-        if(!Singleton.getInstance(context).getCachedSystemPreferences().isHouseEnabled()){
+        if(!CacheManager.getInstance(context).getCachedSystemPreferences().isHouseEnabled()){
             fui.onError(new Exception(),context);
             return;
         }
@@ -481,7 +486,7 @@ public class FirebaseUtil {
                                             }
                                             if (getRewards) // Rewards don't update often, don't make an extra query if not needed
                                             {
-                                                db.collection("Rewards").get()
+                                                db.collection(ROOT_REWARDS_KEY).get()
                                                         .addOnCompleteListener(rewardTask -> {
                                                             if (rewardTask.isSuccessful()) {
                                                                 List<Reward> rewardList = new ArrayList<>();
@@ -592,12 +597,12 @@ public class FirebaseUtil {
         data.put("Description", link.getDescription());
         data.put("PointID", link.getPointTypeId());
         data.put("SingleUse", link.isSingleUse());
-        data.put("CreatorID", Singleton.getInstance(context).getUserId());
+        data.put("CreatorID", CacheManager.getInstance(context).getUserId());
         data.put("Enabled", link.isEnabled());
         data.put("Archived", link.isArchived());
 
         //Call Firebase to add the data
-        db.collection("Links").add(data).addOnCompleteListener(task -> {
+        db.collection(ROOT_LINKS_KEY).add(data).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 System.out.println("Added Document to: "+task.getResult().getId());
                 //If successful, save the document ID as the LinkID so that the caller has a reference to it.
@@ -625,7 +630,7 @@ public class FirebaseUtil {
         data.put("Enabled", isEnabled);
 
         //Tell the document with path Links/<LinkID> to update the values stored in the map
-        db.collection("Links").document(link.getLinkId()).update(data).addOnCompleteListener(task -> {
+        db.collection(ROOT_LINKS_KEY).document(link.getLinkId()).update(data).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 System.out.println("Link Update Success");
                 //Make sure local copy is updated
@@ -651,7 +656,7 @@ public class FirebaseUtil {
         data.put("Archived", isArchived);
 
         //Tell the document with path Links/<LinkID> to update the values stored in the map
-        db.collection("Links").document(link.getLinkId()).update(data).addOnCompleteListener(task -> {
+        db.collection(ROOT_LINKS_KEY).document(link.getLinkId()).update(data).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 System.out.println("Link Update Success");
                 //Make sure local copy is updated
@@ -670,7 +675,7 @@ public class FirebaseUtil {
      * @param fui   FirebaseUtilInterface which implements onGetSystemPreferencesSuccess and OnError
      */
     public void getSystemPreferences(FirebaseUtilInterface fui) {
-        DocumentReference preference = db.collection("SystemPreferences").document("Preferences");
+        DocumentReference preference = db.collection(ROOT_SYSTEM_PREFERENCES_KEY).document(ROOT_SYSTEM_PREFERENCES_PREFERENCE_DOCUMENT_KEY);
 
         preference.get().addOnCompleteListener(task -> {
             if(task.isSuccessful()) {
@@ -821,7 +826,30 @@ public class FirebaseUtil {
                 fui.onError(task1.getException(), context);
             }
         });
-
-
     }
+
+    /**
+     * Get the house codes
+     * @param fui
+     */
+    public void retrieveHouseCodes(final FirebaseUtilInterface fui){
+        CollectionReference houseCodesRef = db.collection(ROOT_CODES_KEY);
+        houseCodesRef.get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()){
+                            ArrayList<HouseCode> codes = new ArrayList<>();
+                            for(QueryDocumentSnapshot doc: task.getResult()){
+                                codes.add(new HouseCode(doc.getData()));
+                            }
+                            fui.onGetHouseCodes(codes);
+                        }
+                        else{
+                            fui.onError(task.getException(),context);
+                        }
+                    }
+                });
+    }
+
 }

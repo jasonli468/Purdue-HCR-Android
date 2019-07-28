@@ -1,3 +1,8 @@
+/**
+ *  SubmitPointsFragment displays the form where a user can submit a point. Contains label for
+ *      point type, and description. Also date and time input and description input
+ */
+
 package com.hcrpurdue.jason.hcrhousepoints.Fragments;
 
 import android.app.TimePickerDialog;
@@ -22,9 +27,9 @@ import androidx.fragment.app.Fragment;
 import com.hcrpurdue.jason.hcrhousepoints.Activities.NavigationActivity;
 import com.hcrpurdue.jason.hcrhousepoints.Models.PointType;
 import com.hcrpurdue.jason.hcrhousepoints.R;
-import com.hcrpurdue.jason.hcrhousepoints.Utils.Singleton;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.CacheManager;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.ListenerCallbackInterface;
-import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.SingletonInterface;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.CacheManagementInterface;
 import com.tsongkha.spinnerdatepicker.DatePicker;
 import com.tsongkha.spinnerdatepicker.DatePickerDialog;
 import com.tsongkha.spinnerdatepicker.SpinnerDatePickerDialogBuilder;
@@ -34,7 +39,7 @@ import java.util.GregorianCalendar;
 import java.util.Objects;
 
 public class SubmitPointsFragment extends Fragment implements ListenerCallbackInterface {
-    static private Singleton singleton;
+    static private CacheManager cacheManager;
     private Context context;
     private AppCompatActivity activity;
     private ProgressBar progressBar;
@@ -59,7 +64,7 @@ public class SubmitPointsFragment extends Fragment implements ListenerCallbackIn
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        singleton = Singleton.getInstance(getContext());
+        cacheManager = CacheManager.getInstance(getContext());
         calendar = new GregorianCalendar();
     }
 
@@ -70,7 +75,7 @@ public class SubmitPointsFragment extends Fragment implements ListenerCallbackIn
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_submit_point, container, false);
         retrieveBundleData();
-        singleton.getCachedData();
+        cacheManager.getCachedData();
 
         pointTypeTextView = view.findViewById(R.id.submit_point_type_text_view);
         pointTypeDescriptionTextView = view.findViewById(R.id.submit_point_type_description_text_view);
@@ -135,9 +140,9 @@ public class SubmitPointsFragment extends Fragment implements ListenerCallbackIn
         else{
             progressBar.setVisibility(View.VISIBLE);
 
-            singleton.submitPoints(descriptionEditText.getText().toString(), calendar.getTime(),
+            cacheManager.submitPoints(descriptionEditText.getText().toString(), calendar.getTime(),
                     pointType,
-                    new SingletonInterface() {
+                    new CacheManagementInterface() {
                         @Override
                         public void onSuccess() {
                             progressBar.setVisibility(View.INVISIBLE);

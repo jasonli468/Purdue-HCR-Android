@@ -1,3 +1,11 @@
+/**
+ * AccountCreationActivity - This class holds the controller for Account Creation.
+ *
+ *  On sign-up button press, check the validity of the fields and create the account with Firestore.
+ *  After the account is created, transition to the activity to sign up for a house.
+ *
+ */
+
 package com.hcrpurdue.jason.hcrhousepoints.Activities;
 
 import android.content.Context;
@@ -47,23 +55,30 @@ public class AccountCreationActivity extends AppCompatActivity {
     }
 
     /**
-     * Method that the sign up button calls to crete the account in firebase
+     * Method that the sign up button calls to crete the account in Firestore
      * @param view
      */
     public void signUp(View view) {
+        //Disable the button to prevent spamming
         signUpButton.setEnabled(false);
+
+        //Get the text values
         final String emailText = emailEditText.getText().toString();
         final String passwordText = passwordEditText.getText().toString();
         final String confirmPasswordText = confirmPasswordEditText.getText().toString();
 
         if (isAccountCreationDataValid(emailText,passwordText,confirmPasswordText)){
+            //Use Firestore Auth to create the user
             auth.createUserWithEmailAndPassword(emailText, passwordText)
                     .addOnCompleteListener(this, task -> {
                         if (task.isSuccessful()) {
+                            //Account successfully created. Transition to house sign up.
                             launchHouseSignUpActivity();
                         } else {
+                            //If there is a problem display a toast.
                             Toast.makeText(this, task.getException().getMessage(),
                                     Toast.LENGTH_SHORT).show();
+                            //Reenable the sign up button
                             signUpButton.setEnabled(true);
                         }
                     });
@@ -96,6 +111,7 @@ public class AccountCreationActivity extends AppCompatActivity {
             Toast.makeText(this, "Password cannot be empty.", Toast.LENGTH_SHORT).show();
             return false;
         }
+        //ensure the password has appropriate length
         else if (password.length() < 6) {
             Toast.makeText(this, "Password must be at least 6 characters long.", Toast.LENGTH_SHORT).show();
             return false;
