@@ -13,7 +13,7 @@ public class HouseCode {
     public final String CODE_KEY = "Code";
     public final String CODE_NAME_KEY = "CodeName";
     public final String PERMISSION_LEVEL = "PermissionLevel";
-    public final String FLOOR_ID_KEY = "FloorID";
+    public final String FLOOR_ID_KEY = "FloorId";
     public final String HOUSE_NAME_KEY = "House";
 
     private String code;
@@ -26,7 +26,7 @@ public class HouseCode {
     public HouseCode(Map<String,Object> dataMap){
         this.code = (String) dataMap.get(CODE_KEY);
         this.codeName = (String) dataMap.get(CODE_NAME_KEY);
-        this.permissionLevel = (int) dataMap.get(PERMISSION_LEVEL);
+        this.permissionLevel = ((Long) dataMap.get(PERMISSION_LEVEL)).intValue();
         this.floorId = (String) dataMap.get(FLOOR_ID_KEY);
         this.houseName = (String) dataMap.get(HOUSE_NAME_KEY);
     }

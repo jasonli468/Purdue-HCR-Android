@@ -62,7 +62,7 @@ public class FirebaseUtil {
 
     public static String ROOT_LINKS_KEY = "Links";
 
-    public static String ROOT_CODES_KEY = "Codes";
+    public static String ROOT_CODES_KEY = "HouseCodes";
 
 
 
