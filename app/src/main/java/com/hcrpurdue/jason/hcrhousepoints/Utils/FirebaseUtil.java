@@ -414,8 +414,6 @@ public class FirebaseUtil {
                                 }
                             }
                         }
-                        if (logs.isEmpty())
-                            Toast.makeText(context, "No unapproved points", Toast.LENGTH_SHORT).show();
                         fui.onGetUnconfirmedPointsSuccess(logs);
                     } else {
                         fui.onError(task.getException(), context);
@@ -480,8 +478,7 @@ public class FirebaseUtil {
                                             for (QueryDocumentSnapshot doc : houseTask.getResult()) {
                                                 Map<String, Object> houseData = doc.getData();
                                                 Integer housePoints = ((Long) houseData.get("TotalPoints")).intValue();
-                                                Integer numRes = ((Long) houseData.get("NumberOfResidents")).intValue();
-                                                House house = new House(doc.getId(), numRes, housePoints);
+                                                House house = new House(doc.getId(), 0, housePoints);
                                                 houseList.add(house);
                                             }
                                             if (getRewards) // Rewards don't update often, don't make an extra query if not needed
@@ -720,8 +717,6 @@ public class FirebaseUtil {
                                 }
                             }
                         }
-                        if (logs.isEmpty())
-                            Toast.makeText(context, "No unapproved points", Toast.LENGTH_SHORT).show();
                         fui.onGetAllHousePointsSuccess(logs);
                     } else {
                         fui.onError(task.getException(), context);

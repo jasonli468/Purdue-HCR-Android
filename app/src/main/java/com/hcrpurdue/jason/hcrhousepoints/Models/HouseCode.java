@@ -4,8 +4,7 @@
 
 package com.hcrpurdue.jason.hcrhousepoints.Models;
 
-import androidx.annotation.NonNull;
-
+import java.util.HashMap;
 import java.util.Map;
 
 public class HouseCode {
@@ -18,17 +17,45 @@ public class HouseCode {
 
     private String code;
     private String codeName;
-    private int permissionLevel;
+    private PermissionLevel permissionLevel;
+
+
     private String floorId;
     private String houseName;
 
+    public HouseCode(String code, String codeName, PermissionLevel permissionLevel, String floorId, String houseName){
+        this.code = code;
+        this.codeName = codeName;
+        this.permissionLevel = permissionLevel;
+        this.floorId = floorId;
+        this.houseName = houseName;
+    }
 
+
+    /**
+     * init a House Code from the database
+     * @param dataMap
+     */
     public HouseCode(Map<String,Object> dataMap){
         this.code = (String) dataMap.get(CODE_KEY);
         this.codeName = (String) dataMap.get(CODE_NAME_KEY);
-        this.permissionLevel = ((Long) dataMap.get(PERMISSION_LEVEL)).intValue();
+        this.permissionLevel = PermissionLevel.getPermissionLevelFromFirestore(((Long) dataMap.get(PERMISSION_LEVEL)).intValue());
         this.floorId = (String) dataMap.get(FLOOR_ID_KEY);
         this.houseName = (String) dataMap.get(HOUSE_NAME_KEY);
+    }
+
+    /**
+     * Save this model into a map to upload to Firestore
+     * @return
+     */
+    public Map<String,Object> convertToFirestoreMap(){
+        Map<String,Object> map = new HashMap<>();
+        map.put(CODE_KEY,this.code);
+        map.put(CODE_NAME_KEY,this.codeName);
+        map.put(PERMISSION_LEVEL,this.permissionLevel.getFirestoreValue());
+        map.put(FLOOR_ID_KEY,this.floorId);
+        map.put(HOUSE_NAME_KEY,this.houseName);
+        return map;
     }
 
     public String getCode() {
@@ -39,7 +66,7 @@ public class HouseCode {
         return codeName;
     }
 
-    public int getPermissionLevel() {
+    public PermissionLevel getPermissionLevel() {
         return permissionLevel;
     }
 

@@ -21,6 +21,7 @@ import com.hcrpurdue.jason.hcrhousepoints.Models.PointType;
 import com.hcrpurdue.jason.hcrhousepoints.Models.SystemPreferences;
 import com.hcrpurdue.jason.hcrhousepoints.R;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.CacheManager;
+import com.hcrpurdue.jason.hcrhousepoints.Utils.FirebaseListenerUtil;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.CacheManagementInterface;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.ListenerCallbackInterface;
 
@@ -35,6 +36,8 @@ public class PointTypeListFragment  extends ListFragment implements SearchView.O
     private CacheManager cacheManager;
     private TextView emptyMessageTextView;
     private ListView listView;
+    private FirebaseListenerUtil flu;
+    private final String POINT_TYPE_CALLBACK_KEY = "POINT_TYPE_CALLBACK";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,6 +51,13 @@ public class PointTypeListFragment  extends ListFragment implements SearchView.O
         super.onActivityCreated(savedInstanceState);
         AppCompatActivity activity = (AppCompatActivity) Objects.requireNonNull(getActivity());
         Objects.requireNonNull(activity.getSupportActionBar()).setTitle("Submit Points");
+        flu = FirebaseListenerUtil.getInstance(getContext());
+        flu.getSystemPreferenceListener().addCallback(POINT_TYPE_CALLBACK_KEY, new ListenerCallbackInterface() {
+            @Override
+            public void onUpdate() {
+                handleSystemPreferencesUpdate();
+            }
+        });
 
     }
 
@@ -58,13 +68,14 @@ public class PointTypeListFragment  extends ListFragment implements SearchView.O
     }
 
     @Override
-    public void onListItemClick(ListView listView, View v, int position, long id) {
-
+    public void onDetach() {
+        super.onDetach();
+        flu.getSystemPreferenceListener().removeCallback(POINT_TYPE_CALLBACK_KEY);
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
+    public void onListItemClick(ListView listView, View v, int position, long id) {
+
     }
 
     @Override
@@ -133,6 +144,11 @@ public class PointTypeListFragment  extends ListFragment implements SearchView.O
     private void createAdapter(List<PointType> types){
         adapter = new PointTypeListAdapter(types,getContext());
         setListAdapter(adapter);
+        if (types.size() == 0) {
+            listView.setVisibility(View.GONE);
+            emptyMessageTextView.setText("No Points with that name");
+            emptyMessageTextView.setVisibility(View.VISIBLE);
+        }
     }
 
 
@@ -141,27 +157,8 @@ public class PointTypeListFragment  extends ListFragment implements SearchView.O
             cacheManager.getUpdatedPointTypes(new CacheManagementInterface() {
                 public void onPointTypeComplete(List<PointType> data) {
                     storeEnabledTypes(data);
-                    cacheManager.getSystemPreferences(new CacheManagementInterface() {
-                        @Override
-                        public void onGetSystemPreferencesSuccess(SystemPreferences systemPreferences) {
-                            if(!systemPreferences.isHouseEnabled()) {
-                                listView.setVisibility(View.GONE);
-                                emptyMessageTextView.setText(systemPreferences.getHouseIsEnabledMsg());
-                                emptyMessageTextView.setVisibility(View.VISIBLE);
-                            }
-
-                            else if (enabledTypes.size() == 0) {
-                                listView.setVisibility(View.GONE);
-                                emptyMessageTextView.setText(R.string.no_point_types_enabled);
-                                emptyMessageTextView.setVisibility(View.VISIBLE);
-                            }
-                            else {
-                                listView.setVisibility(View.VISIBLE);
-                                emptyMessageTextView.setVisibility(View.GONE);
-                            }
-                            createAdapter(enabledTypes);
-                        }
-                    });
+                    handleSystemPreferencesUpdate();
+                    createAdapter(enabledTypes);
                 }
             });
 
@@ -177,6 +174,25 @@ public class PointTypeListFragment  extends ListFragment implements SearchView.O
             if (type.getResidentsCanSubmit() && type.isEnabled()) {
                 enabledTypes.add(type);
             }
+        }
+    }
+
+    private void handleSystemPreferencesUpdate(){
+        SystemPreferences systemPreferences = cacheManager.getSystemPreferences();
+        if(!systemPreferences.isHouseEnabled()) {
+            listView.setVisibility(View.GONE);
+            emptyMessageTextView.setText(systemPreferences.getHouseIsEnabledMsg());
+            emptyMessageTextView.setVisibility(View.VISIBLE);
+        }
+
+        else if (enabledTypes.size() == 0) {
+            listView.setVisibility(View.GONE);
+            emptyMessageTextView.setText(R.string.no_point_types_enabled);
+            emptyMessageTextView.setVisibility(View.VISIBLE);
+        }
+        else {
+            listView.setVisibility(View.VISIBLE);
+            emptyMessageTextView.setVisibility(View.GONE);
         }
     }
 }

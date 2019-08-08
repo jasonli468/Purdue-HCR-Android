@@ -33,7 +33,8 @@ public class HousePointHistoryFragment extends ListFragment implements SearchVie
     List<PointLog> allHouseLogs;
     private PointLogAdapter adapter;
     private CacheManager cacheManager;
-    private ProgressBar progressBar;
+    private TextView emptyMessageTextView;
+    private ListView listView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,8 +47,6 @@ public class HousePointHistoryFragment extends ListFragment implements SearchVie
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         AppCompatActivity activity = (AppCompatActivity) Objects.requireNonNull(getActivity());
-        progressBar = activity.findViewById(R.id.navigationProgressBar);
-        progressBar.setVisibility(View.VISIBLE);
 
         Objects.requireNonNull(activity.getSupportActionBar()).setTitle("House Point History");
 
@@ -61,16 +60,15 @@ public class HousePointHistoryFragment extends ListFragment implements SearchVie
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_house_submission_history_list, container, false);
-        ListView listView = (ListView) layout.findViewById(android.R.id.list);
-        TextView emptyTextView = (TextView) layout.findViewById(android.R.id.empty);
+        listView = layout.findViewById(android.R.id.list);
+        emptyMessageTextView = layout.findViewById(android.R.id.empty);
 
-        listView.setEmptyView(emptyTextView);
+        listView.setEmptyView(emptyMessageTextView);
         cacheManager.getAllHousePoints(new CacheManagementInterface() {
             @Override
             public void onGetAllHousePointsSuccess(List<PointLog> houseLogs) {
                 allHouseLogs = houseLogs;
                 createAdapter(allHouseLogs);
-                progressBar.setVisibility(View.GONE);
             }
         });
 
@@ -134,5 +132,10 @@ public class HousePointHistoryFragment extends ListFragment implements SearchVie
     private void createAdapter(List<PointLog> logs){
         adapter = new PointLogAdapter(logs,getContext());
         setListAdapter(adapter);
+        if (logs.size() == 0) {
+            listView.setVisibility(View.GONE);
+            emptyMessageTextView.setText("No Points to approve!");
+            emptyMessageTextView.setVisibility(View.VISIBLE);
+        }
     }
 }

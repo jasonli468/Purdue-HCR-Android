@@ -61,7 +61,7 @@ public class PersonalPointLogListFragment extends ListFragment implements Search
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_point_type_list, container, false);
+        View layout = inflater.inflate(R.layout.fragment_personal_point_list, container, false);
         listView = layout.findViewById(android.R.id.list);
         listView.addFooterView(new View(getContext()), null, true);
         emptyMessageTextView = layout.findViewById(android.R.id.empty);
@@ -132,6 +132,9 @@ public class PersonalPointLogListFragment extends ListFragment implements Search
     }
 
     private void createAdapter(List<PointLog> logs){
+        if(logs.size() == 0){
+            emptyMessageTextView.setText("You haven't submitted any points");
+        }
         adapter = new PointLogAdapter(logs,getContext());
         setListAdapter(adapter);
     }

@@ -143,6 +143,14 @@ public class CacheManager {
     }
 
     /**
+     * Gets system preferences for House
+     * @return Return this current sysPRefs
+     */
+    public SystemPreferences getSystemPreferences() {
+        return sysPrefs;
+    }
+
+    /**
      *
      * Returns cached system preferences
      * @return

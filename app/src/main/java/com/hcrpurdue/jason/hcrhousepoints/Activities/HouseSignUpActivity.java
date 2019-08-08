@@ -128,7 +128,9 @@ public class HouseSignUpActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        System.out.println("BRIAN: PRINT CODES");
         for(HouseCode hc: floorCodes){
+            System.out.println("BRIAN: "+hc.getCode());
             if(hc.getCode().equals(code)){
                 return hc;
             }
@@ -147,7 +149,7 @@ public class HouseSignUpActivity extends AppCompatActivity {
         String house = houseCode.getHouseName();
         String firstName = firstNameEditText.getText().toString();
         String lastName = lastNameEditText.getText().toString();
-        int permissionLevel = houseCode.getPermissionLevel();
+        int permissionLevel = houseCode.getPermissionLevel().getFirestoreValue();
         Map<String, Object> userData = new HashMap<>();
         userData.put("FirstName", firstName);
         userData.put("LastName", lastName );

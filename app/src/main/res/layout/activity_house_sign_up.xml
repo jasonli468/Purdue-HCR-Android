@@ -130,7 +130,7 @@
                     android:layout_weight="1"
                     android:ems="10"
                     android:hint="@string/last_name_request_label"
-                    android:inputType="textPassword" />
+                    android:inputType="textCapWords|textPersonName" />
 
             </com.google.android.material.textfield.TextInputLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>

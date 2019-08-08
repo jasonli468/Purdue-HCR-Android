@@ -18,6 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.hcrpurdue.jason.hcrhousepoints.Models.PointLog;
+import com.hcrpurdue.jason.hcrhousepoints.Models.SystemPreferences;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.Listeners.FirebaseCollectionListener;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.Listeners.FirestoreDocumentListener;
 import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.SnapshotInterface;
@@ -35,6 +36,7 @@ public class FirebaseListenerUtil {
     private FirebaseCollectionListener userPointLogListener;
     private FirebaseCollectionListener rhpNotificationListener;
     private FirestoreDocumentListener pointLogListener;
+    private FirestoreDocumentListener systemPreferenceListener;
 
     /**
      * Get the instance of the FirebaseUtilListener to be used in the app.
@@ -58,6 +60,7 @@ public class FirebaseListenerUtil {
      */
     private void createPersistantListeners(){
         createUserPointLogListener();
+        createSystemPreferencesListener();
         if(cacheManager.getPermissionLevel() == 1){
             //Create RHP only listeners
             createRHPNotificationListener();
@@ -142,5 +145,27 @@ public class FirebaseListenerUtil {
 
     public FirestoreDocumentListener getPointLogListener() {
         return pointLogListener;
+    }
+
+    /*---------------------------SYSTEM PREFERENCES LISTENER--------------------------------------*/
+
+    public void createSystemPreferencesListener(){
+        SystemPreferences systemPreferences = cacheManager.getSystemPreferences();
+        DocumentReference documentReference = db.collection("SystemPreferences")
+                .document("Preferences");
+        SnapshotInterface si = new SnapshotInterface() {
+            @Override
+            public void handleDocumentSnapshot(DocumentSnapshot documentSnapshot, Exception e) {
+                if(e == null){
+                    SystemPreferences sp = (SystemPreferences) systemPreferenceListener.getUpdatingObject();
+                    sp.updateValues(documentSnapshot.getData());
+                }
+            }
+        };
+        systemPreferenceListener = new FirestoreDocumentListener(context,documentReference,si,systemPreferences);
+    }
+
+    public FirestoreDocumentListener getSystemPreferenceListener(){
+        return systemPreferenceListener;
     }
 }
