@@ -82,7 +82,6 @@ public class PointTypeListFragment  extends ListFragment implements SearchView.O
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_point_type_list, container, false);
         listView = layout.findViewById(android.R.id.list);
-        listView.addFooterView(new View(getContext()), null, true);
         emptyMessageTextView = layout.findViewById(android.R.id.empty);
 
         listView.setEmptyView(emptyMessageTextView);
@@ -142,6 +141,7 @@ public class PointTypeListFragment  extends ListFragment implements SearchView.O
     }
 
     private void createAdapter(List<PointType> types){
+        //Hide the list if house is disabled
         adapter = new PointTypeListAdapter(types,getContext());
         setListAdapter(adapter);
         if (types.size() == 0) {
@@ -149,6 +149,7 @@ public class PointTypeListFragment  extends ListFragment implements SearchView.O
             emptyMessageTextView.setText("No Points with that name");
             emptyMessageTextView.setVisibility(View.VISIBLE);
         }
+        handleSystemPreferencesUpdate();
     }
 
 
@@ -184,7 +185,6 @@ public class PointTypeListFragment  extends ListFragment implements SearchView.O
             emptyMessageTextView.setText(systemPreferences.getHouseIsEnabledMsg());
             emptyMessageTextView.setVisibility(View.VISIBLE);
         }
-
         else if (enabledTypes.size() == 0) {
             listView.setVisibility(View.GONE);
             emptyMessageTextView.setText(R.string.no_point_types_enabled);

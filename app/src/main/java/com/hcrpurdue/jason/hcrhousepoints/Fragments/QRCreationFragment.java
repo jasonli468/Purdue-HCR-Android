@@ -108,6 +108,7 @@ public class QRCreationFragment extends Fragment implements ListenerCallbackInte
      * @param types List of PointType objects to put into the spinner
      */
     private void loadSpinner(List<PointType> types){
+        enabledTypes = new ArrayList<>();
         List<Map<String, String>> formattedPointTypes = new ArrayList<>();
         for (PointType type : types) {
             if (type.getRHPsCanGenerateQRCodes() && type.isEnabled()) {
@@ -166,6 +167,7 @@ public class QRCreationFragment extends Fragment implements ListenerCallbackInte
             Link link = new Link(codeDescriptionLabel.getText().toString(),
                     (!multipleUseSwitch.isChecked()),
                     enabledTypes.get(pointTypeSpinner.getSelectedItemPosition()).getId());
+            Toast.makeText(context,"ID: "+enabledTypes.get(pointTypeSpinner.getSelectedItemPosition()).getId(),Toast.LENGTH_LONG).show();
             //Pass to CacheManager then Firebase to handle generation of Links in database
             cacheManager.createQRCode(link, new CacheManagementInterface() {
                 @Override

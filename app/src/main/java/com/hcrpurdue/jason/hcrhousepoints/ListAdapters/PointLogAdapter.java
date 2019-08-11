@@ -31,11 +31,19 @@ public class PointLogAdapter extends BaseAdapter  implements ListAdapter {
     private List<PointLog> list;
     private Context context;
     private CacheManager cacheManager;
+    private Integer idToUse;
 
-    public PointLogAdapter(List<PointLog> logs, Context c){
+    /**
+     * Create a Point Log Adapter
+     * @param logs  Point logs to create this adapter with
+     * @param c     Context
+     * @param idToUse   R.id. id for the navigation menu so the app knows which page to return to
+     */
+    public PointLogAdapter(List<PointLog> logs, Context c, Integer idToUse ){
         list = logs;
         context = c;
         cacheManager = CacheManager.getInstance(context);
+        this.idToUse = idToUse;
     }
 
     @Override
@@ -75,14 +83,14 @@ public class PointLogAdapter extends BaseAdapter  implements ListAdapter {
         if(cacheManager.getPermissionLevel() > 0 && log.getRhpNotifications() > 0){
             alertLayout.setVisibility(View.VISIBLE);
         }
-        else if(cacheManager.getPermissionLevel() == 0 && log.getResidentNotifications() > 0){
+        else if((cacheManager.getPermissionLevel() == 0 || cacheManager.getUserId().equals(log.getResidentId())) && log.getResidentNotifications() > 0){
             alertLayout.setVisibility(View.VISIBLE);
         }
         else{
             alertLayout.setVisibility(View.GONE);
         }
 
-        dateView.setText(DateFormat.format("M/d/yy h:mm a",log.getDateOccurred()));
+        dateView.setText(DateFormat.format("M/d/yy",log.getDateOccurred()));
         pointTypeLabel.setText(log.getPointType().getName());
         nameLabel.setText(log.getResidentFirstName());
         lastNameLabel.setText(log.getResidentLastName());
@@ -105,7 +113,7 @@ public class PointLogAdapter extends BaseAdapter  implements ListAdapter {
                 FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.content_frame, fragment, Integer.toString(R.id.nav_point_log_details));
-                fragmentTransaction.addToBackStack(Integer.toString(R.id.point_history));
+                fragmentTransaction.addToBackStack(Integer.toString(idToUse));
                 fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                 fragmentTransaction.commit();
             }

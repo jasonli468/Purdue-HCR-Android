@@ -49,11 +49,11 @@ public class SubmitPointsFragment extends Fragment implements ListenerCallbackIn
     private TextView pointTypeDescriptionTextView;
     private Button submitPointButton;
     private Button setDateButton;
-    private Button setTimeButton;
+    //private Button setTimeButton;
 
     private Calendar calendar;
     private boolean dateSet;
-    private boolean timeSet;
+    //private boolean timeSet;
 
     @Override
     public void onAttach(Context context) {
@@ -99,13 +99,13 @@ public class SubmitPointsFragment extends Fragment implements ListenerCallbackIn
             }
         });
 
-        setTimeButton = view.findViewById(R.id.time_button);
-        setTimeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                displayTimePicker();
-            }
-        });
+//        setTimeButton = view.findViewById(R.id.time_button);
+//        setTimeButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                displayTimePicker();
+//            }
+//        });
         return view;
     }
 
@@ -134,9 +134,9 @@ public class SubmitPointsFragment extends Fragment implements ListenerCallbackIn
         else if (!dateSet){
             Toast.makeText(context, "Please set a date before you submit.", Toast.LENGTH_SHORT).show();
         }
-        else if(!timeSet){
-            Toast.makeText(context, "Please set a time before you submit.", Toast.LENGTH_SHORT).show();
-        }
+//        else if(!timeSet){
+//            Toast.makeText(context, "Please set a time before you submit.", Toast.LENGTH_SHORT).show();
+//        }
         else{
             progressBar.setVisibility(View.VISIBLE);
 
@@ -194,22 +194,22 @@ public class SubmitPointsFragment extends Fragment implements ListenerCallbackIn
 
     }
 
-    private void displayTimePicker(){
-        final Calendar c = Calendar.getInstance();
-        int hour = c.get(Calendar.HOUR_OF_DAY);
-        int minute = c.get(Calendar.MINUTE);
-
-        new TimePickerDialog(context, new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker timePicker, int hour, int minute) {
-                int formattedHour = ((hour%12) == 0)?12:(hour%12);
-                String formattedMinute = (minute < 10)?("0"+minute):""+minute;
-                String time = ""+formattedHour+":"+formattedMinute+((hour > 11)?"pm":"am");
-                setTimeButton.setText(time);
-                calendar.set(Calendar.HOUR,hour);
-                calendar.set(Calendar.MINUTE,minute);
-                timeSet = true;
-            }
-        },hour,minute, false).show();
-    }
+//    private void displayTimePicker(){
+//        final Calendar c = Calendar.getInstance();
+//        int hour = c.get(Calendar.HOUR_OF_DAY);
+//        int minute = c.get(Calendar.MINUTE);
+//
+//        new TimePickerDialog(context, new TimePickerDialog.OnTimeSetListener() {
+//            @Override
+//            public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+//                int formattedHour = ((hour%12) == 0)?12:(hour%12);
+//                String formattedMinute = (minute < 10)?("0"+minute):""+minute;
+//                String time = ""+formattedHour+":"+formattedMinute+((hour > 11)?"pm":"am");
+//                setTimeButton.setText(time);
+//                calendar.set(Calendar.HOUR,hour);
+//                calendar.set(Calendar.MINUTE,minute);
+//                timeSet = true;
+//            }
+//        },hour,minute, false).show();
+//    }
 }

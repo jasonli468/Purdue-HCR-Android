@@ -59,6 +59,7 @@ public class PersonalPointLogListFragment extends ListFragment implements Search
         flu.getUserPointLogListener().removeCallback(CALLBACK_KEY);
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_personal_point_list, container, false);
@@ -135,13 +136,12 @@ public class PersonalPointLogListFragment extends ListFragment implements Search
         if(logs.size() == 0){
             emptyMessageTextView.setText("You haven't submitted any points");
         }
-        adapter = new PointLogAdapter(logs,getContext());
+        adapter = new PointLogAdapter(logs,getContext(), R.id.nav_personal_point_log_list);
         setListAdapter(adapter);
     }
 
 
     public void handleUpdate() {
-        Toast.makeText(getContext(),"Update to point Log", Toast.LENGTH_LONG).show();
         logs = cacheManager.getPersonalPointLogs();
         if(!isSearching){
             createAdapter(logs);

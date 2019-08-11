@@ -19,7 +19,7 @@ public class SystemPreferences {
     public SystemPreferences(Map<String,Object> data) {
         this.isHouseEnabled = (boolean) data.get("isHouseEnabled");
         this.houseIsEnabledMsg = (String) data.get("houseEnabledMessage");
-        this.appVersion = (String) data.get("Version");
+        this.appVersion = (String) data.get("Android_Version");
     }
 
     public String getHouseIsEnabledMsg() {

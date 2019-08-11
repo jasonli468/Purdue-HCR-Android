@@ -2,6 +2,8 @@ package com.hcrpurdue.jason.hcrhousepoints.Models;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,7 +13,7 @@ import java.util.Map;
 
 import com.hcrpurdue.jason.hcrhousepoints.Utils.CacheManager;
 
-public class PointLog implements Serializable {
+public class PointLog implements Comparable<PointLog>, Serializable {
 
     //TODO: 1: /  2: (2 *)  3: Enter
 
@@ -307,6 +309,8 @@ public class PointLog implements Serializable {
         return dateOccurred;
     }
 
+    public Date getDateSubmitted() { return dateSubmitted;}
+
     /**
      * This static method is used to create the map to update the number of notifications.
      * Local number of notifications on the Point Log will not update until Firestore Listener fires
@@ -318,11 +322,14 @@ public class PointLog implements Serializable {
         Map<String,Object> data = new HashMap<>();
         if(notificationForResident){
             //We don't update the local number of notifications because our Firestore Listener will update it once it has been saved in the database
-            data.put(RESIDENT_NOTIF_KEY,(shouldReset?0:residentNotifications+1));
+            residentNotifications = (shouldReset?0:residentNotifications+1);
+            data.put(RESIDENT_NOTIF_KEY,residentNotifications);
+
         }
         else{
             //We don't update the local number of notifications because our Firestore Listener will update it once it has been saved in the database
-            data.put(RHP_NOTIF_KEY,(shouldReset?0:rhpNotifications+1));
+            rhpNotifications = (shouldReset?0:rhpNotifications+1);
+            data.put(RHP_NOTIF_KEY,rhpNotifications);
         }
         return data;
     }
@@ -339,5 +346,10 @@ public class PointLog implements Serializable {
             this.residentNotifications = toUpdate.getResidentNotifications();
             this.rhpNotifications = toUpdate.getRhpNotifications();
         }
+    }
+
+    @Override
+    public int compareTo(PointLog pointLog) {
+        return pointLog.getDateSubmitted().compareTo(dateSubmitted);
     }
 }

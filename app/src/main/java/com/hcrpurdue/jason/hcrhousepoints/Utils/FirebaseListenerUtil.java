@@ -11,7 +11,9 @@
 package com.hcrpurdue.jason.hcrhousepoints.Utils;
 
 import android.content.Context;
+import android.widget.Toast;
 
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -24,6 +26,7 @@ import com.hcrpurdue.jason.hcrhousepoints.Utils.Listeners.FirestoreDocumentListe
 import com.hcrpurdue.jason.hcrhousepoints.Utils.UtilityInterfaces.SnapshotInterface;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -85,6 +88,7 @@ public class FirebaseListenerUtil {
                     for(DocumentSnapshot doc : queryDocumentSnapshots){
                         userLogs.add(new PointLog(doc.getId(),doc.getData(),context));
                     }
+                    Collections.sort(userLogs);
                     cacheManager.setPersonalPointLogs(userLogs);
                 }
             }

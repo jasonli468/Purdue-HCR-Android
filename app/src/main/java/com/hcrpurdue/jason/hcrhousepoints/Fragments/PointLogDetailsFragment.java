@@ -39,6 +39,7 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
     private ProgressBar progressBar;
     private PointLog log;
     private List<PointLogMessage> logMessages;
+    private Boolean isFromPersonalPointLog;
 
     private Button sendMessageButton;
     private Button rejectButton;
@@ -113,11 +114,22 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
         if(CacheManager.getInstance(context).getPermissionLevel() == 1){
             if(log.wasHandled()){
                 changeStatusButton.setVisibility(View.VISIBLE);
+                changeStatusButton.setText(log.wasRejected()?"Approve":"Reject");
             }
             else{
                 approveButton.setVisibility(View.VISIBLE);
                 rejectButton.setVisibility(View.VISIBLE);
             }
+        }
+        if(isFromPersonalPointLog){
+            changeStatusButton.setVisibility(View.GONE);
+            approveButton.setVisibility(View.GONE);
+            rejectButton.setVisibility(View.GONE);
+        }
+        if(log.getResidentId().equals(cacheManager.getUserId())){
+            changeStatusButton.setVisibility(View.GONE);
+            rejectButton.setVisibility(View.GONE);
+            approveButton.setVisibility(View.GONE);
         }
 
         flu = FirebaseListenerUtil.getInstance(getContext());
@@ -149,6 +161,12 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
         Bundle bundle = getArguments();
         if(bundle != null){
             log = (PointLog) bundle.getSerializable("POINTLOG");
+            if(bundle.getSerializable("ISPERSONALPOINTLOG") != null){
+                isFromPersonalPointLog = (Boolean) bundle.getSerializable("ISPERSONALPOINTLOG");
+            }
+            else{
+                isFromPersonalPointLog = false;
+            }
         }
     }
 
@@ -192,7 +210,6 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
                 cacheManager.handlePointLog(log, false,false, new CacheManagementInterface() {
                     @Override
                     public void onSuccess() {
-                        Toast.makeText(context,"Success",Toast.LENGTH_LONG).show();
                         progressBar.setVisibility(View.INVISIBLE);
                         rejectButton.setVisibility(View.GONE);
                         approveButton.setVisibility(View.GONE);
@@ -214,7 +231,6 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
                 cacheManager.handlePointLog(log, true,false, new CacheManagementInterface() {
                     @Override
                     public void onSuccess() {
-                        Toast.makeText(context,"Success",Toast.LENGTH_LONG).show();
                         progressBar.setVisibility(View.INVISIBLE);
                         rejectButton.setVisibility(View.GONE);
                         approveButton.setVisibility(View.GONE);
@@ -236,8 +252,8 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
                 cacheManager.handlePointLog(log, log.wasRejected(),true, new CacheManagementInterface() {
                     @Override
                     public void onSuccess() {
-                        Toast.makeText(context,"Success",Toast.LENGTH_LONG).show();
                         progressBar.setVisibility(View.INVISIBLE);
+                        changeStatusButton.setText(log.wasRejected()?"Approve":"Reject");
                     }
                     @Override
                     public void onError(Exception e, Context context){
@@ -253,6 +269,8 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
         manager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(adapter);
+
+
 
     }
 

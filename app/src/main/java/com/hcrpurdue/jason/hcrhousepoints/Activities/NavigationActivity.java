@@ -82,7 +82,7 @@ public class NavigationActivity extends AppCompatActivity {
         fragmentManager = getSupportFragmentManager();
         if (fragmentManager.getFragments().isEmpty()) {
             try {
-                fragmentManager.beginTransaction().replace(R.id.content_frame, PointTypeListFragment.class.newInstance(), Integer.toString(R.id.nav_submit)).commit();
+                fragmentManager.beginTransaction().replace(R.id.content_frame, PointTypeListFragment.class.newInstance(), Integer.toString(R.id.nav_point_type_list)).commit();
             } catch (Exception e) {
                 Toast.makeText(this, "Error loading PointSubmissionFragment Frament", Toast.LENGTH_LONG).show();
                 Log.e("NavigationActivity", "Failed to load initial fragment", e);
@@ -127,19 +127,19 @@ public class NavigationActivity extends AppCompatActivity {
                                     .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> signOut())
                                     .setNegativeButton(android.R.string.no, null).show();
                             break;
-                        case R.id.nav_submit:
+                        case R.id.nav_point_type_list:
                             //If Submit points is tapped, display the Point Type list
                             fragmentClass = PointTypeListFragment.class;
                             break;
-                        case R.id.nav_approve:
+                        case R.id.nav_approve_point:
                             //If RHP taps approve option, display PointApproval list
                             fragmentClass = PointApprovalFragment.class;
                             break;
-                        case R.id.nav_statistics:
+                        case R.id.nav_profile:
                             //If house overview is selected, display house overview fragment
                             fragmentClass = HouseOverviewFragment.class;
                             break;
-                        case R.id.nav_scanner:
+                        case R.id.nav_scan_code:
                             //If the QR scanner is selected, check permission and display if approved
                             if (ContextCompat.checkSelfPermission(Objects.requireNonNull(this), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
                                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 10);
@@ -160,7 +160,7 @@ public class NavigationActivity extends AppCompatActivity {
                             reportIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(reportIntent);
                             break;
-                        case R.id.point_history:
+                        case R.id.nav_point_history:
                             //Open Point history fragment
                             fragmentClass = HousePointHistoryFragment.class;
                             break;
@@ -254,8 +254,8 @@ public class NavigationActivity extends AppCompatActivity {
         //Use the permission levels to set the appropriate navigation menu options
         try {
             if (cacheManager.getPermissionLevel() > 0) {
-                menu.findItem(R.id.nav_approve).setVisible(true);
-                menu.findItem(R.id.point_history).setVisible(true);
+                menu.findItem(R.id.nav_approve_point).setVisible(true);
+                menu.findItem(R.id.nav_point_history).setVisible(true);
                 menu.findItem(R.id.nav_qr_code_list).setVisible(true);
             }
         } catch (Exception e) {
@@ -288,12 +288,12 @@ public class NavigationActivity extends AppCompatActivity {
         if (requestCode == 10) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 try {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, QRScannerFragment.class.newInstance(), Integer.toString(R.id.nav_scanner)).addToBackStack(null).commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, QRScannerFragment.class.newInstance(), Integer.toString(R.id.nav_scan_code)).addToBackStack(null).commit();
                 } catch (Exception e) {
                     Log.e("Navigation", "Failed to launch QR fragment", e);
                 }
             } else {
-                ((NavigationView) findViewById(R.id.nav_view)).getMenu().findItem(R.id.nav_scanner).setChecked(false);
+                ((NavigationView) findViewById(R.id.nav_view)).getMenu().findItem(R.id.nav_scan_code).setChecked(false);
                 Toast.makeText(this, "Camera permissions denied, please allow camera permissions to scan QR codes", Toast.LENGTH_SHORT).show();
             }
         }
@@ -372,7 +372,7 @@ public class NavigationActivity extends AppCompatActivity {
      * When the RHPNotificationsListener fires, check if the RHP navigation menu needs to change
      */
     private void handleUpdatesToRHPNotifications(){
-        MenuItem houseOverview = menu.findItem(R.id.point_history);
+        MenuItem houseOverview = menu.findItem(R.id.nav_point_history);
         if(cacheManager.getNotificationCount() > 0){
             //If there is a new notification, add the warning symbol to the label
             houseOverview.setTitle(R.string.house_overview_alert);

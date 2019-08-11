@@ -7,6 +7,7 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import java.util.Map;
 import com.hcrpurdue.jason.hcrhousepoints.Models.House;
 import com.hcrpurdue.jason.hcrhousepoints.Models.HouseCode;
 import com.hcrpurdue.jason.hcrhousepoints.Models.Link;
+import com.hcrpurdue.jason.hcrhousepoints.Models.MessageType;
 import com.hcrpurdue.jason.hcrhousepoints.Models.PointLog;
 import com.hcrpurdue.jason.hcrhousepoints.Models.PointLogMessage;
 import com.hcrpurdue.jason.hcrhousepoints.Models.PointType;
@@ -108,6 +110,7 @@ public class CacheManager {
             public void onPointTypeComplete(List<PointType> data) {
                 if (data != null && !data.isEmpty()) {
                     pointTypeList = data;
+                    Collections.sort(pointTypeList);
                     si.onPointTypeComplete(data);
                 } else {
                     si.onError(new IllegalStateException("Point Type list is empty"), fbutil.getContext());
@@ -243,18 +246,36 @@ public class CacheManager {
         return permissionLevel;
     }
 
-    public void submitPoints(String description, Date dateOccurred, PointType type, CacheManagementInterface si) {
+    public void submitPoints(String description, Date dateOccurred, PointType type, CacheManagementInterface sui) {
         PointLog log = new PointLog(description, firstName, lastName, type, floorName,userID, dateOccurred);
         boolean preApproved = permissionLevel > 0;
         fbutil.submitPointLog(log, null, houseName, userID, preApproved, sysPrefs, new FirebaseUtilInterface() {
             @Override
             public void onSuccess() {
-                si.onSuccess();
+                if(preApproved){
+                    PointLogMessage plm = new PointLogMessage("Preapproved", "PurdueHCR", "",getPermissionLevel(), MessageType.APPROVE);
+                    fbutil.postMessageToPointLog(log, getHouse(), plm, new FirebaseUtilInterface() {
+                        @Override
+                        public void onSuccess() {
+
+                            sui.onSuccess();
+                        }
+
+                        @Override
+                        public void onError(Exception e, Context context) {
+                            sui.onError(e,context);
+                        }
+                    });
+                }
+                else{
+                    sui.onSuccess();
+                }
+
             }
         });
     }
 
-    public void submitPointWithLink(Link link, CacheManagementInterface si) {
+    public void submitPointWithLink(Link link, CacheManagementInterface sui) {
         if (link.isEnabled()) {
               PointType type = null;
               for (PointType pointType : pointTypeList) {
@@ -266,7 +287,24 @@ public class CacheManager {
               fbutil.submitPointLog(log, (link.isSingleUse()) ? link.getLinkId() : null, houseName, userID, link.isSingleUse(), sysPrefs, new FirebaseUtilInterface() {
                   @Override
                   public void onSuccess() {
-                      si.onSuccess();
+                      if(link.isSingleUse()){
+                          PointLogMessage plm = new PointLogMessage("Preapproved", "PurdueHCR", "",getPermissionLevel(), MessageType.APPROVE);
+                          fbutil.postMessageToPointLog(log, getHouse(), plm, new FirebaseUtilInterface() {
+                              @Override
+                              public void onSuccess() {
+
+                                  sui.onSuccess();
+                              }
+
+                              @Override
+                              public void onError(Exception e, Context context) {
+                                  sui.onError(e,context);
+                              }
+                          });
+                      }
+                      else{
+                          sui.onSuccess();
+                      }
                   }
 
                   @Override
@@ -275,12 +313,12 @@ public class CacheManager {
                           Toast.makeText(c, "You have already submitted this code.",
                                   Toast.LENGTH_SHORT).show();
                       } else {
-                          si.onError(e, c);
+                          sui.onError(e, c);
                       }
                   }
               });
         } else {
-            si.onError(new Exception("QR is not enabled."), fbutil.getContext());
+            sui.onError(new Exception("QR is not enabled."), fbutil.getContext());
         }
     }
 
@@ -454,11 +492,13 @@ public class CacheManager {
         fbutil.updatePointLogStatus(log, approved, getHouse(),updating,false, new FirebaseUtilInterface() {
             @Override
             public void onSuccess() {
+                MessageType mt = MessageType.REJECT;
                 String msg = getName()+" rejected the point request.";
                 if(approved){
                     msg = getName()+" approved the point request.";
+                    mt = MessageType.APPROVE;
                 }
-                PointLogMessage plm = new PointLogMessage(msg, getName().split(" ")[0], getName().split(" ")[1],getPermissionLevel());
+                PointLogMessage plm = new PointLogMessage(msg, firstName, lastName,getPermissionLevel(), mt);
                 fbutil.postMessageToPointLog(log, getHouse(), plm, new FirebaseUtilInterface() {
                     @Override
                     public void onSuccess() {
@@ -526,7 +566,7 @@ public class CacheManager {
      * @param sui   CacheManagementInterface with onSuccess and onError
      */
     public void postMessageToPointLog(PointLog log, String message, CacheManagementInterface sui){
-        PointLogMessage plm = new PointLogMessage(message, firstName, lastName, permissionLevel);
+        PointLogMessage plm = new PointLogMessage(message, firstName, lastName, permissionLevel, MessageType.COMMENT);
         postMessageToPointLog(log,plm,sui);
     }
 

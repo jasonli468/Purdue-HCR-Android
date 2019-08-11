@@ -102,6 +102,7 @@ public class FirebaseUtil {
                         .add(data)
                         // add an action listener to handle the event when it goes Async
                         .addOnSuccessListener(documentReference -> {
+                            log.setLogID(documentReference.getId());
                             //Now that it is written to the house, check if we need to add points
                             if (preapproved) {
                                 updateHouseAndUserPoints(log, house,false,false, fui);
@@ -194,8 +195,8 @@ public class FirebaseUtil {
                                         if(task1.isSuccessful()){
                                             if((approved || updating)){
                                                 updateHouseAndUserPoints(log,house,updating,isRECGrantingAward,fui);
-                                                if(updating){
-                                                    //If the point has been updated, notifiy the user that they have something new!
+                                                if(updating && log.getResidentId() != CacheManager.getInstance(context).getUserId()){
+                                                    //If the point has been updated, and the point was not updated by the user who submitted it, notifiy the user that they have something new!
                                                     updatePointLogNotificationCount(log, house, true, false, new FirebaseUtilInterface() {});
                                                 }
                                             }

@@ -130,7 +130,7 @@ public class HousePointHistoryFragment extends ListFragment implements SearchVie
     }
 
     private void createAdapter(List<PointLog> logs){
-        adapter = new PointLogAdapter(logs,getContext());
+        adapter = new PointLogAdapter(logs,getContext(), R.id.nav_point_history);
         setListAdapter(adapter);
         if (logs.size() == 0) {
             listView.setVisibility(View.GONE);

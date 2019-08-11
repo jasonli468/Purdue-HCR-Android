@@ -96,7 +96,7 @@ public class Link implements Serializable {
     }
 
     public PointType getPointType(Context context){
-        return CacheManager.getInstance(context).getPointTypeList().get(pointTypeId);
+        return CacheManager.getInstance(context).getPointTypeWithID(pointTypeId);
     }
 
 }

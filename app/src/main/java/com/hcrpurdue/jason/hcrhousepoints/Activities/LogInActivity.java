@@ -61,6 +61,7 @@ public class LogInActivity extends AppCompatActivity {
         emailEditText = findViewById(R.id.email_input);
         passwordEditText = findViewById(R.id.password_input);
         logInButton = findViewById(R.id.log_in_button);
+        logInButton.setEnabled(true);
         createAccountButton = findViewById(R.id.create_account_button);
     }
 

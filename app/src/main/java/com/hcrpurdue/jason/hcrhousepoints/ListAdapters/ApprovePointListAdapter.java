@@ -93,7 +93,7 @@ public class ApprovePointListAdapter extends BaseAdapter implements ListAdapter 
                 FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.content_frame, fragment, Integer.toString(R.id.nav_point_log_details));
-                fragmentTransaction.addToBackStack(Integer.toString(R.id.nav_approve));
+                fragmentTransaction.addToBackStack(Integer.toString(R.id.nav_approve_point));
                 fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                 fragmentTransaction.commit();
             }

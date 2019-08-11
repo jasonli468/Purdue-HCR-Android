@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -86,6 +87,7 @@ public class AppInitializationActivity extends AppCompatActivity {
                             Toast.makeText(AppInitializationActivity.this,
                                     e.getLocalizedMessage(),
                                     Toast.LENGTH_SHORT).show();
+                            launchSignInActivity();
                         }
                     }
                 });
@@ -107,6 +109,7 @@ public class AppInitializationActivity extends AppCompatActivity {
                             Toast.makeText(AppInitializationActivity.this,
                                     e.getLocalizedMessage(),
                                     Toast.LENGTH_SHORT).show();
+                            launchSignInActivity();
                         }
                     }
                 });
@@ -183,6 +186,18 @@ public class AppInitializationActivity extends AppCompatActivity {
     }
 
     /**
+     * Start a time so if the loading takes longer than 30 seconds, it can go back to log in
+     */
+    private void startTimer(){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                alertAppIsTakingALongTimeToLoad();
+            }
+        }, 30000);
+    }
+
+    /**
      * If there is an error, display a toast and move to sign in activity
      * @param e
      */
@@ -246,6 +261,25 @@ public class AppInitializationActivity extends AppCompatActivity {
                     launchNavigationActivity();
                 })
                 .show();
+    }
+
+    /**
+     * Post dialog warning that the app is loading slowly
+     */
+    private void alertAppIsTakingALongTimeToLoad(){
+        new AlertDialog.Builder(this)
+                .setTitle("Purdue HCR Is Taking a While")
+                .setMessage("Purdue HCR has been loading for a while. Would you like to continue to wait or go back to Sign In?")
+                .setPositiveButton("Sign In", (dialog, whichButton) -> {
+                    //They want to join a house
+                    launchSignInActivity();
+                })
+                .setNegativeButton("Wait", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        startTimer();
+
+                    }
+                }).show();
     }
 
     /**

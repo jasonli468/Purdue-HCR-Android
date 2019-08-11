@@ -93,7 +93,6 @@ public class PointApprovalFragment extends ListFragment implements SearchView.On
             emptyMessageTextView.setText(systemPreferences.getHouseIsEnabledMsg());
             emptyMessageTextView.setVisibility(View.VISIBLE);
         }
-
         else if (pointLogList.size() == 0) {
             listView.setVisibility(View.GONE);
             emptyMessageTextView.setText("No Points to approve!");
@@ -110,8 +109,7 @@ public class PointApprovalFragment extends ListFragment implements SearchView.On
             @Override
             public void onUnconfirmedPointsSuccess(ArrayList<PointLog> logs) {
                 pointLogList = logs;
-                PointLogAdapter adapter = new PointLogAdapter(logs,context);
-                listView.setAdapter(adapter);
+                createAdapter(pointLogList);
             }
         });
     }
@@ -184,13 +182,14 @@ public class PointApprovalFragment extends ListFragment implements SearchView.On
     }
 
     public void createAdapter(List<PointLog> logs){
-        PointLogAdapter adapter = new PointLogAdapter(logs,context);
+        PointLogAdapter adapter = new PointLogAdapter(logs,context, R.id.nav_approve_point);
         listView.setAdapter(adapter);
         if (logs.size() == 0) {
             listView.setVisibility(View.GONE);
             emptyMessageTextView.setText("No unhandled point that has a name that matches.");
             emptyMessageTextView.setVisibility(View.VISIBLE);
         }
+        handleSystemPreferencesUpdate();
     }
 }
 

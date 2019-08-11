@@ -103,7 +103,7 @@ public class HouseOverviewFragment extends Fragment implements ListenerCallbackI
                 FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.content_frame, fragment, Integer.toString(R.id.nav_personal_point_log_list));
-                fragmentTransaction.addToBackStack(Integer.toString(R.id.nav_statistics));
+                fragmentTransaction.addToBackStack(Integer.toString(R.id.nav_profile));
                 fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                 fragmentTransaction.commit();
             }
