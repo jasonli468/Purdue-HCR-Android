@@ -102,20 +102,23 @@ public class PointLogAdapter extends BaseAdapter  implements ListAdapter {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Bundle args = new Bundle();
-                args.putSerializable("POINTLOG", log);
+                boolean isHouseEnabled = cacheManager.getCachedSystemPreferences().isHouseEnabled();
+                if(isHouseEnabled) {
+                    Bundle args = new Bundle();
+                    args.putSerializable("POINTLOG", log);
 
-                //Create destination fragment
-                Fragment fragment = new PointLogDetailsFragment();
-                fragment.setArguments(args);
+                    //Create destination fragment
+                    Fragment fragment = new PointLogDetailsFragment();
+                    fragment.setArguments(args);
 
-                //Create Fragment manager
-                FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.content_frame, fragment, Integer.toString(R.id.nav_point_log_details));
-                fragmentTransaction.addToBackStack(Integer.toString(idToUse));
-                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                fragmentTransaction.commit();
+                    //Create Fragment manager
+                    FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.content_frame, fragment, Integer.toString(R.id.nav_point_log_details));
+                    fragmentTransaction.addToBackStack(Integer.toString(idToUse));
+                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    fragmentTransaction.commit();
+                }
             }
         });
 

@@ -147,4 +147,5 @@ public class PersonalPointLogListFragment extends ListFragment implements Search
             createAdapter(logs);
         }
     }
+
 }

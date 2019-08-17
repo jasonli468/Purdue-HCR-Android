@@ -137,5 +137,22 @@ public class HousePointHistoryFragment extends ListFragment implements SearchVie
             emptyMessageTextView.setText("No Points to approve!");
             emptyMessageTextView.setVisibility(View.VISIBLE);
         }
+        handleSystemPreferences();
+    }
+
+    private void handleSystemPreferences(){
+        boolean isHouseEnabled = cacheManager.getCachedSystemPreferences().isHouseEnabled();
+
+        if(!isHouseEnabled) {
+            listView.setVisibility(View.GONE);
+            emptyMessageTextView.setText(cacheManager.getCachedSystemPreferences().getHouseIsEnabledMsg());
+            emptyMessageTextView.setVisibility(View.VISIBLE);
+
+        }
+
+        else {
+            listView.setVisibility(View.VISIBLE);
+            emptyMessageTextView.setVisibility(View.GONE);
+        }
     }
 }

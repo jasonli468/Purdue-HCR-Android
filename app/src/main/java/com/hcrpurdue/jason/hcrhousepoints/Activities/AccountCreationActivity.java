@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,6 +32,7 @@ public class AccountCreationActivity extends AppCompatActivity {
     private EditText passwordEditText;
     private EditText confirmPasswordEditText;
     private Button signUpButton;
+    private ProgressBar loadingBar;
 
     /**
      * Called when the Activity is created.
@@ -52,6 +54,8 @@ public class AccountCreationActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.password_input);
         confirmPasswordEditText = findViewById(R.id.confirm_password_input);
         signUpButton = findViewById(R.id.sign_up_button);
+        loadingBar = findViewById(R.id.initialization_progress_bar);
+        loadingBar.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -60,7 +64,7 @@ public class AccountCreationActivity extends AppCompatActivity {
      */
     public void signUp(View view) {
         //Disable the button to prevent spamming
-        signUpButton.setEnabled(false);
+        startLoading();
 
         //Get the text values
         final String emailText = emailEditText.getText().toString();
@@ -79,9 +83,12 @@ public class AccountCreationActivity extends AppCompatActivity {
                             Toast.makeText(this, task.getException().getMessage(),
                                     Toast.LENGTH_SHORT).show();
                             //Reenable the sign up button
-                            signUpButton.setEnabled(true);
+                            stopLoading();
                         }
                     });
+        }
+        else{
+            stopLoading();
         }
     }
 
@@ -131,6 +138,7 @@ public class AccountCreationActivity extends AppCompatActivity {
      * Transition to House Sign Up activity
      */
     private void launchHouseSignUpActivity(){
+        stopLoading();
         Intent intent = new Intent(this, HouseSignUpActivity.class);
         startActivity(intent);
         finish();
@@ -145,5 +153,15 @@ public class AccountCreationActivity extends AppCompatActivity {
             super.onBackPressed();
             overridePendingTransition(R.anim.slide_in_reverse,R.anim.slide_out_reverse);
 
+    }
+
+    private void startLoading(){
+        loadingBar.setVisibility(View.VISIBLE);
+        signUpButton.setEnabled(false);
+    }
+
+    private void stopLoading(){
+        loadingBar.setVisibility(View.INVISIBLE);
+        signUpButton.setEnabled(true);
     }
 }

@@ -214,6 +214,7 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
                         rejectButton.setVisibility(View.GONE);
                         approveButton.setVisibility(View.GONE);
                         changeStatusButton.setVisibility(View.VISIBLE);
+                        changeStatusButton.setText("Reject");
                     }
                     @Override
                     public void onError(Exception e, Context context){
@@ -235,6 +236,7 @@ public class PointLogDetailsFragment extends Fragment implements ListenerCallbac
                         rejectButton.setVisibility(View.GONE);
                         approveButton.setVisibility(View.GONE);
                         changeStatusButton.setVisibility(View.VISIBLE);
+                        changeStatusButton.setText("Approve");
                     }
                     @Override
                     public void onError(Exception e, Context context){

@@ -12,6 +12,7 @@ import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,6 +35,8 @@ public class HouseSignUpActivity extends AppCompatActivity {
     private EditText lastNameEditText;
     private EditText houseCodeEditText;
     private Button joinButton;
+    private ProgressBar loadingBar;
+
     private FirebaseFirestore db;
 
     private CacheManager cacheManager;
@@ -57,6 +60,8 @@ public class HouseSignUpActivity extends AppCompatActivity {
         lastNameEditText = findViewById(R.id.last_name_input);
         houseCodeEditText = findViewById(R.id.house_code_input);
         joinButton = findViewById(R.id.join_button);
+        loadingBar = findViewById(R.id.initialization_progress_bar);
+        loadingBar.setVisibility(View.INVISIBLE);
     }
 
     // Fills floorCodes with key:value pairs in the form of {floorCode}:({floorName}:{houseName})
@@ -75,7 +80,7 @@ public class HouseSignUpActivity extends AppCompatActivity {
      * @param view
      */
     public void join(View view){
-        joinButton.setEnabled(false);
+        startLoading();
         String first = firstNameEditText.getText().toString();
         String last = lastNameEditText.getText().toString();
         String code = houseCodeEditText.getText().toString();
@@ -86,15 +91,11 @@ public class HouseSignUpActivity extends AppCompatActivity {
             }
             else{
                 Toast.makeText(getApplicationContext(),"Could not find that code.",Toast.LENGTH_LONG).show();
+                stopLoading();
             }
         }
         else{
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    joinButton.setEnabled(true);
-                }
-            }, 2000);
+            stopLoading();
 
         }
     }
@@ -128,9 +129,7 @@ public class HouseSignUpActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-        System.out.println("BRIAN: PRINT CODES");
         for(HouseCode hc: floorCodes){
-            System.out.println("BRIAN: "+hc.getCode());
             if(hc.getCode().equals(code)){
                 return hc;
             }
@@ -165,7 +164,7 @@ public class HouseSignUpActivity extends AppCompatActivity {
                         launchInitializationActivity();
                     })
                     .addOnFailureListener(e -> {
-                            joinButton.setEnabled(true);
+                            stopLoading();
                             Toast.makeText(this, "Could not create user. Please try again.", Toast.LENGTH_LONG).show();
                     });
         } else {
@@ -178,6 +177,7 @@ public class HouseSignUpActivity extends AppCompatActivity {
      * Transition to the initialization activity. This ensures that all the other data is cached before moving on.
      */
     private void launchInitializationActivity() {
+        stopLoading();
         Intent intent = new Intent(this, AppInitializationActivity.class);
         startActivity(intent);
         finish();
@@ -187,6 +187,7 @@ public class HouseSignUpActivity extends AppCompatActivity {
      * Transition to Sign In Activity
      */
     private void launchSignInActivity(){
+        stopLoading();
         Intent intent = new Intent(this, LogInActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in_reverse,R.anim.slide_out_reverse);
@@ -207,6 +208,16 @@ public class HouseSignUpActivity extends AppCompatActivity {
             overridePendingTransition(R.anim.slide_in_reverse,R.anim.slide_out_reverse);
         }
 
+    }
+
+    private void startLoading(){
+        loadingBar.setVisibility(View.VISIBLE);
+        joinButton.setEnabled(false);
+    }
+
+    private void stopLoading(){
+        loadingBar.setVisibility(View.INVISIBLE);
+        joinButton.setEnabled(true);
     }
 
 }

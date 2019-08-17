@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,6 +33,7 @@ public class LogInActivity extends AppCompatActivity {
     private EditText passwordEditText;
     private Button logInButton;
     private Button createAccountButton;
+    private ProgressBar loadingBar;
 
     /**
      * When the activity is created, setup the view and initialize authentication
@@ -63,6 +65,8 @@ public class LogInActivity extends AppCompatActivity {
         logInButton = findViewById(R.id.log_in_button);
         logInButton.setEnabled(true);
         createAccountButton = findViewById(R.id.create_account_button);
+        loadingBar = findViewById(R.id.initialization_progress_bar);
+        loadingBar.setVisibility(View.INVISIBLE);
     }
 
 
@@ -71,7 +75,7 @@ public class LogInActivity extends AppCompatActivity {
      * @param view
      */
     public void signIn(View view) {
-        logInButton.setEnabled(false);
+        startLoading();
         //Make sure the info is valid
         if(!signInInvalid(emailEditText,passwordEditText)){
 
@@ -87,12 +91,12 @@ public class LogInActivity extends AppCompatActivity {
                             //If it fails, toast error and reenable login button
                             Toast.makeText(this, "Authentication failed. Please verify your email and password and try again.",
                                     Toast.LENGTH_LONG).show();
-                            logInButton.setEnabled(true);
+                            stopLoading();
                         }
                     });
         }
         else{
-            logInButton.setEnabled(true);
+            stopLoading();
         }
 
     }
@@ -132,6 +136,7 @@ public class LogInActivity extends AppCompatActivity {
      * Transition to the initialization activity. This ensures that all the other data is cached before moving on.
      */
     private void launchInitializationActivity() {
+        stopLoading();
         Intent intent = new Intent(this, AppInitializationActivity.class);
         startActivity(intent);
     }
@@ -141,11 +146,11 @@ public class LogInActivity extends AppCompatActivity {
      * @param view view passed by button press
      */
     public void launchAccountCreationActivity(View view){
-        createAccountButton.setEnabled(false);
+        startLoading();
         Intent intent = new Intent(this, AccountCreationActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in,R.anim.slide_out);
-        createAccountButton.setEnabled(true);
+        stopLoading();
     }
 
     /**
@@ -155,6 +160,18 @@ public class LogInActivity extends AppCompatActivity {
     public void openPasswordResetDialog(View view) {
         ForgotPasswordDialog forgotPasswordDialog = new ForgotPasswordDialog(this);
         forgotPasswordDialog.show();
+    }
+
+    private void startLoading(){
+        loadingBar.setVisibility(View.VISIBLE);
+        logInButton.setEnabled(false);
+        createAccountButton.setEnabled(false);
+    }
+
+    private void stopLoading(){
+        loadingBar.setVisibility(View.INVISIBLE);
+        logInButton.setEnabled(true);
+        createAccountButton.setEnabled(true);
     }
 
 }
