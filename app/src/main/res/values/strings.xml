@@ -6,11 +6,24 @@
     <string name="signUpButton">Sign Up</string>
     <string name="confirmPasswordInputHint">Confirm Password</string>
     <string name="nameInputHint">Name (First and Last)</string>
-    <string name="RHPCodeInputHint">Floor Code (Provided by RHP)</string>
+    <string name="RHPCodeInputHint">House Code</string>
     <string name="enter_link">Please enter your link</string>
     <string name="generate_code">Generate Code</string>
     <string name="no_point_types_enabled">No point types enabled.</string>
     <string name="submit_point">Submit Point</string>
     <string name="description_required">Description (Required)</string>
     <string name="point_type_label">Point Type</string>
+    <string name="first_name_request_label">Preferred First Name</string>
+    <string name="last_name_request_label" translatable="false">Preferred Last Name</string>
+    <string name="link_house_button">Join the Purdue HCR</string>
+    <string name="no_results_found">No results found.</string>
+    <string name="filler_point_type_message">This is where a point type would go if there were one. It could be long and has to wrap well!</string>
+    <string name="filler_point_details_message">This is where a point type desciption would go too.</string>
+    <string name="enter_date">Enter Date</string>
+    <string name="enter_time">Enter Time</string>
+    <string name="view_points">View My Points</string>
+    <string name="view_points_alert">⚠️View My Points⚠️</string>
+    <string name="house_overview">House Point History</string>
+    <string name="house_overview_alert">House Point History ⚠️</string>
+    <string name="alert_icon">⚠️</string>
 </resources>
